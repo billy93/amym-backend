@@ -1,4 +1,4 @@
-package com.atibusinessgroup.config;
+package com.atibusinessgroup.amanyaman.config;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

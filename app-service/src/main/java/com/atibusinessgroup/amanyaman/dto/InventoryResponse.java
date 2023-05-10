@@ -1,4 +1,4 @@
-package com.atibusinessgroup.dto;
+package com.atibusinessgroup.amanyaman.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

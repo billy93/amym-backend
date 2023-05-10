@@ -1,4 +1,4 @@
-package com.atibusinessgroup.model;
+package com.atibusinessgroup.amanyaman.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
