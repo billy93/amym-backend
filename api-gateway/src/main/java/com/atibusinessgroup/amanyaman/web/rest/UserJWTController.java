@@ -9,17 +9,26 @@ import com.atibusinessgroup.amanyaman.web.rest.errors.UnlockedException;
 import com.atibusinessgroup.amanyaman.web.rest.vm.LoginVM;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.netflix.discovery.converters.Auto;
 
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,6 +56,9 @@ public class UserJWTController {
     private JWTUtil jwtUtil;
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, DomainUserDetailsService domainUserDetailsService, AuthenticationProvider domainAuthenticationProvider, PolicyUserDetailsService policyUserDetailsService, UserService userService, UserRepository userRepository) {
     //     this.tokenProvider = tokenProvider;
     //     this.authenticationManagerBuilder = authenticationManagerBuilder;
@@ -57,91 +69,114 @@ public class UserJWTController {
     //     this.userRepository = userRepository;
     // }
 
+    public User loadUserByUsername(final String login) {
+        if (new EmailValidator().isValid(login, null)) {
+            return userRepository.findOneWithAuthoritiesByEmailIgnoreCase(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + login + " was not found in the database"));
+        }
+
+        String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
+        return userRepository.findOneWithAuthoritiesByLogin(lowercaseLogin)
+            .orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
+    }
+
     @PostMapping("/api/authenticate")
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//            new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
-//        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        // UserAmanyaman userDetails = (UserAmanyaman) domainUserDetailsService.loadUserByUsername(loginVM.getUsername());
-        // TokenBasedAuthentication tokenBasedAuthentication = new TokenBasedAuthentication(userDetails, loginVM.getPassword(), userDetails.getAuthorities());
-
         String login = loginVM.getUsername().toLowerCase(Locale.ENGLISH);
-        User u = null;
         if (new EmailValidator().isValid(loginVM.getUsername(), null)) {
-            u = userRepository.findOneWithAuthoritiesByEmailIgnoreCase(login).get();
-        }
-//        else{
-//            u = userRepository.findOneWithAuthoritiesByLogin(login).get();
-//        }
+            User u = loadUserByUsername(login);
 
-        try {
-            // Authentication authentication = domainAuthenticationProvider.authenticate(tokenBasedAuthentication);
-            // SecurityContextHolder.getContext().setAuthentication(authentication);
-            boolean rememberMe = (loginVM.isRememberMe() == null) ? false : loginVM.isRememberMe();
-
-            Map<String, Object> claims = new HashMap<>();
-            // claims.put(USER_TYPE_KEY, UserAmanyaman.UserAmamyamanType.JHIPSTER.name());
-            // claims.put(USER_LASTNAME_KEY, userDetails.getLastName());
-            // claims.put(USER_FIRSTNAME_KEY, userDetails.getFirstName());
-            Optional<User> user = userService.getUserWithAuthoritiesByLogin(u.getLogin());
-            // if(user.isPresent()){
-            //     if(user.get().getTravelAgent() != null){
-            //         if(user.get().getTravelAgent().getId() != null){
-            //             claims.put(USER_TRAVEL_AGENT, user.get().getTravelAgent().getId());
-            //         }
-            //     }
-            //     claims.put(USER_TRAVEL_AGENT_STAFF, user.get().getId());
-            // }
-            // String jwt = tokenProvider.createToken(authentication, rememberMe, claims);
-            String jwt = jwtUtil.generateToken();
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
-
-            if(u.isAccountNonLocked()) {
-                if (u.getFailedAttempt() > 0) {
-                    userService.resetFailedAttempts(u);
-                }
-            }
-
-            List<String> roles = u.getAuthorities().stream()
-                .map( a -> a.getName() )
-                .collect( Collectors.toList() );
-            return new ResponseEntity<>(
-                new JWTToken(
-                    jwt, 
-                    null, 
-                    null, 
-                    "Admin",  
-                    "Test", 
-                    null,  
-                    null, 
-                    roles), 
-                    httpHeaders, HttpStatus.OK);
-        } catch(BadCredentialsException e){
-            if(u.isActivated() && u.isAccountNonLocked()) {
-                if(u.getFailedAttempt() < UserService.MAX_FAILED_ATTEMPTS - 1) {
-                    u = userService.increaseFailedAttempt(u);
-                    throw new BadCredentialsException(String.valueOf(UserService.MAX_FAILED_ATTEMPTS - u.getFailedAttempt()));
+            try {                
+                if (!userService.checkPassword(u, loginVM.getPassword())) {      
+                    if(u.isAccountNonLocked()){
+                        throw new BadCredentialsException("Bad credentials");
+                    }  
+                    else{
+                        throw new LockedException("Your account has been locked");
+                    }
                 }
                 else{
-                    userService.lock(u);
-                    throw new UserLockedException("Your account has been locked due to 3 failed attempts. It will be unlocked after 24 hours.");
+                    if(!u.isAccountNonLocked()){
+                        throw new LockedException("Its already 1 day, now we will unlock your user");
+                    }
                 }
-            }
-            throw e;
-        } catch(LockedException exception){
-            if(userService.checkPassword(u, loginVM.getPassword())){
-                if(userService.unlock(u)){
-                    throw new UnlockedException("Your account has been unlocked, Please try to login again.");
+
+                boolean rememberMe = (loginVM.isRememberMe() == null) ? false : loginVM.isRememberMe();
+                Optional<User> user = userService.getUserWithAuthoritiesByLogin(u.getLogin());
+                String jwt = jwtUtil.generateToken(user.get(), rememberMe);
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
+    
+                if(u.isAccountNonLocked()) {
+                    if (u.getFailedAttempt() > 0) {
+                        userService.resetFailedAttempts(u);
+                    }
                 }
-                else{
+    
+                List<String> roles = u.getAuthorities().stream()
+                    .map( a -> a.getName() )
+                    .collect( Collectors.toList() );
+                return new ResponseEntity<>(
+                    new JWTToken(
+                        jwt, 
+                        String.valueOf(u.getId()), 
+                        null, 
+                        u.getFirstName(),  
+                        u.getLastName(), 
+                        null,  
+                        null, 
+                        roles), 
+                        httpHeaders, HttpStatus.OK);
+            } catch(BadCredentialsException e){
+                if(u.isActivated() && u.isAccountNonLocked()) {
+                    if(u.getFailedAttempt() < UserService.MAX_FAILED_ATTEMPTS - 1) {
+                        u = userService.increaseFailedAttempt(u);
+                        throw new BadCredentialsException(String.valueOf(UserService.MAX_FAILED_ATTEMPTS - u.getFailedAttempt()));
+                    }
+                    else{
+                        userService.lock(u);
+                        throw new UserLockedException("Your account has been locked due to 3 failed attempts. It will be unlocked after 24 hours.");
+                    }
+                }
+                throw e;
+            } catch(LockedException exception){
+                if(userService.checkPassword(u, loginVM.getPassword())){
+                    if(userService.unlock(u)){
+                        throw new UnlockedException("Your account has been unlocked, Please try to login again.");
+                    }
+                    else{
+                        throw new LockedException("User account is locked.");
+                    }
+                } else{
                     throw new LockedException("User account is locked.");
                 }
-            } else{
-                throw new LockedException("User account is locked.");
             }
+        
         }
+        return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+    }
+
+    @GetMapping("/api/test")
+    public Mono<Object> test(){
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // System.out.println(authentication.getPrincipal());
+        // Mono<String> user = ReactiveSecurityContextHolder.getContext()
+        //     .map(SecurityContext::getAuthentication)
+        //     .map(Authentication::getPrincipal)
+        //     .cast(String.class);
+       
+        return ReactiveSecurityContextHolder.getContext()
+            .map(SecurityContext::getAuthentication)
+            .flatMap(authentication -> {
+                System.out.println("Authentication object");
+                System.out.println(authentication);
+                return Mono.empty();
+                // if (authentication == null) {
+                //     return Mono.empty();
+                // } else {
+                //     return Mono.just(authentication.getPrincipal().toString());
+                // }
+            });
     }
 
     /**

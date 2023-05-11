@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+
+import com.atibusinessgroup.amanyaman.domain.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,6 +25,8 @@ public class JWTUtil {
 
     @Value("${springbootwebfluxjjwt.jjwt.expiration}")
     private String expirationTime;
+    @Value("${springbootwebfluxjjwt.jjwt.expiration-rememberme}")
+    private String expirationTimeRememberMe;
 
     private Key key;
 
@@ -49,28 +52,37 @@ public class JWTUtil {
         return expiration.before(new Date());
     }
 
-    public String generateToken(User user) {
+    public String generateToken(User user, boolean rememberMe) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getAuthorities());
-        return doGenerateToken(claims, user.getUsername());
+        claims.put(TokenKeyConstant.USER_LASTNAME_KEY, user.getLastName());
+        claims.put(TokenKeyConstant.USER_FIRSTNAME_KEY, user.getFirstName());
+        // if(user.getTravelAgent() != null){
+        //     if(user.getTravelAgent().getId() != null){
+        //         claims.put(USER_TRAVEL_AGENT, user.getTravelAgent().getId());
+        //     }
+        // }
+        // claims.put(USER_TRAVEL_AGENT_STAFF, user.get().getId());
+        return doGenerateToken(claims, user.getEmail(), rememberMe);
     }
 
-    public String generateToken() {
-        Map<String, Object> claims = new HashMap<>();
-        List<String> authorities = Collections.singletonList("ROLE_USER");
-        claims.put("role", authorities);
-        return doGenerateToken(claims, "user");
-    }
-    private String doGenerateToken(Map<String, Object> claims, String username) {
-        Long expirationTimeLong = Long.parseLong(expirationTime); //in second
+    private String doGenerateToken(Map<String, Object> claims, String username, boolean rememberMe) {
+        Long expirationTimeLong = 1000 * Long.parseLong(expirationTime); //in second
+        Long expirationTimeLongRememberme = 1000 * Long.parseLong(expirationTimeRememberMe); //in second
         final Date createdDate = new Date();
-        final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
+        long now = createdDate.getTime();
+        Date validity;
+        if (rememberMe) {
+            validity = new Date(now + expirationTimeLong);
+        } else {
+            validity = new Date(now + expirationTimeLongRememberme);
+        }
 
         return Jwts.builder()
-                .setClaims(claims)
                 .setSubject(username)
+                .addClaims(claims)
                 .setIssuedAt(createdDate)
-                .setExpiration(expirationDate)
+                .setExpiration(validity)
                 .signWith(key)
                 .compact();
     }

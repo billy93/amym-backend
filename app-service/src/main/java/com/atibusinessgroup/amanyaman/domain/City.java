@@ -2,23 +2,21 @@ package com.atibusinessgroup.amanyaman.domain;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
- * A SystemParameter.
+ * A City.
  */
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "system_parameter")
-public class SystemParameter extends AbstractAuditingEntity {
+@Table(name = "city")
+public class City implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,21 +24,22 @@ public class SystemParameter extends AbstractAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "value", nullable = false)
-    private String value;
+    @Column(name = "description")
+    private String description;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SystemParameter)) {
+        if (!(o instanceof City)) {
             return false;
         }
-        return id != null && id.equals(((SystemParameter) o).id);
+        return id != null && id.equals(((City) o).id);
     }
 
     @Override
@@ -51,10 +50,10 @@ public class SystemParameter extends AbstractAuditingEntity {
     // prettier-ignore
     @Override
     public String toString() {
-        return "SystemParameter{" +
+        return "City{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
-            ", value='" + getValue() + "'" +
+            ", description='" + getDescription() + "'" +
             "}";
     }
 }

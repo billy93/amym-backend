@@ -5,6 +5,7 @@ import com.atibusinessgroup.amanyaman.domain.Authority;
 import com.atibusinessgroup.amanyaman.domain.User;
 import com.atibusinessgroup.amanyaman.repository.AuthorityRepository;
 import com.atibusinessgroup.amanyaman.repository.UserRepository;
+import com.atibusinessgroup.amanyaman.security.SecurityUtils;
 import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
 import com.atibusinessgroup.amanyaman.util.AuthoritiesConstants;
 import com.atibusinessgroup.amanyaman.util.RandomUtil;
@@ -232,20 +233,20 @@ public class UserService {
         return userRepository.findOneWithAuthoritiesByLogin(login);
     }
 
-//    @Transactional(readOnly = true)
-//    public Optional<User> getUserWithAuthoritiesByLogin(Long id) {
-//        return userRepository.findOneWithAuthoritiesById(id);
-//    }
+   @Transactional(readOnly = true)
+   public Optional<User> getUserWithAuthoritiesByLogin(Long id) {
+       return userRepository.findOneWithAuthoritiesById(id);
+   }
 
-//    @Transactional(readOnly = true)
-//    public Optional<User> getUserWithAuthoritiesById(Long id) {
-//        return userRepository.findOneWithAuthoritiesById(id);
-//    }
+   @Transactional(readOnly = true)
+   public Optional<User> getUserWithAuthoritiesById(Long id) {
+       return userRepository.findOneWithAuthoritiesById(id);
+   }
 
-    // @Transactional(readOnly = true)
-    // public Optional<User> getUserWithAuthorities() {
-    //     return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
-    // }
+    @Transactional(readOnly = true)
+    public Optional<User> getUserWithAuthorities() {
+        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+    }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthoritiesByEmail(String email) {
@@ -301,7 +302,6 @@ public class UserService {
         long lockTimeInMillis = u.getLockTime().toEpochMilli();
         long currentTimeMillis = System.currentTimeMillis();
 
-        System.out.println((lockTimeInMillis + LOCK_TIME_DURATION) + " < "+currentTimeMillis);
         if(lockTimeInMillis + LOCK_TIME_DURATION < currentTimeMillis){
             u.setAccountNonLocked(true);
             u.setLockTime(null);
@@ -341,11 +341,6 @@ public class UserService {
             this.clearUserCaches(user);
             log.debug("Deleted User: {}", user);
         });
-    }
-
-    public Optional<User> getUserWithAuthoritiesById(Long id) {
-        Optional<User> u = userRepository.findById(id);
-        return u;
     }
 
     public void updateUserLastLatestFeed(long userId){

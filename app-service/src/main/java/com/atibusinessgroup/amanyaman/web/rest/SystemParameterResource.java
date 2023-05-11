@@ -3,59 +3,52 @@ package com.atibusinessgroup.amanyaman.web.rest;
 import com.atibusinessgroup.amanyaman.domain.SystemParameter;
 import com.atibusinessgroup.amanyaman.service.SystemParameterService;
 import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
-// import com.atibusinessgroup.amanyaman.service.dto.SystemParameterCriteria;
+
+import lombok.RequiredArgsConstructor;
 import com.atibusinessgroup.amanyaman.util.HeaderUtil;
 import com.atibusinessgroup.amanyaman.util.PaginationUtil;
 import com.atibusinessgroup.amanyaman.util.ResponseUtil;
-// import com.atibusinessgroup.amanyaman.service.SystemParameterQueryService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-// import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+
 /**
  * REST controller for managing {@link com.atibusinessgroup.amanyaman.domain.SystemParameter}.
  */
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/app")
 public class SystemParameterResource {
 
     private final Logger log = LoggerFactory.getLogger(SystemParameterResource.class);
 
     private static final String ENTITY_NAME = "systemParameter";
 
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
+    
+    private String applicationName ="AMANYAMAN";
 
-    private final SystemParameterService systemParameterService;
-
-    // private final SystemParameterQueryService systemParameterQueryService;
-
-    public SystemParameterResource(SystemParameterService systemParameterService
-    // , SystemParameterQueryService systemParameterQueryService
-    ) {
-        this.systemParameterService = systemParameterService;
-        // this.systemParameterQueryService = systemParameterQueryService;
-    }
+    @Autowired
+    private SystemParameterService systemParameterService;
 
     /**
      * {@code POST  /system-parameters} : Create a new systemParameter.
      *
      * @param systemParameter the systemParameter to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new systemParameter, or with status {@code 400 (Bad Request)} if the systemParameter has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+     * @throws URISyntaxException if the Location URI syntax is incorrect.     
+    */
     @PostMapping("/system-parameters")
     public ResponseEntity<SystemParameter> createSystemParameter(@RequestBody SystemParameter systemParameter) throws URISyntaxException {
         log.debug("REST request to save SystemParameter : {}", systemParameter);
@@ -67,7 +60,6 @@ public class SystemParameterResource {
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
     /**
      * {@code PUT  /system-parameters} : Updates an existing systemParameter.
      *
@@ -75,8 +67,8 @@ public class SystemParameterResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated systemParameter,
      * or with status {@code 400 (Bad Request)} if the systemParameter is not valid,
      * or with status {@code 500 (Internal Server Error)} if the systemParameter couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+     * @throws URISyntaxException if the Location URI syntax is incorrect.     
+    */
     @PutMapping("/system-parameters")
     public ResponseEntity<SystemParameter> updateSystemParameter(@RequestBody SystemParameter systemParameter) throws URISyntaxException {
         log.debug("REST request to update SystemParameter : {}", systemParameter);
@@ -88,7 +80,6 @@ public class SystemParameterResource {
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, systemParameter.getId().toString()))
             .body(result);
     }
-
     /**
      * {@code GET  /system-parameters} : get all the systemParameters.
      *
@@ -97,12 +88,15 @@ public class SystemParameterResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of systemParameters in body.
      */
     @GetMapping("/system-parameters")
-    public ResponseEntity<List<SystemParameter>> getAllSystemParameters(Pageable pageable) {
+    public ResponseEntity<List<SystemParameter>> getAllSystemParameters(Pageable pageable, ServerHttpRequest serverRequest) {
+        URI uri = serverRequest.getURI();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
         Page<SystemParameter> page = systemParameterService.findAll(pageable);
-        // HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
+        
         return ResponseEntity.ok()
-        // .headers(headers)
-        .body(page.getContent());
+            .headers(headers)
+            .body(page.getContent());
     }
 
     /**
@@ -122,7 +116,7 @@ public class SystemParameterResource {
      *
      * @param id the id of the systemParameter to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the systemParameter, or with status {@code 404 (Not Found)}.
-     */
+    */
     @GetMapping("/system-parameters/{id}")
     public ResponseEntity<SystemParameter> getSystemParameter(@PathVariable Long id) {
         log.debug("REST request to get SystemParameter : {}", id);
@@ -134,7 +128,7 @@ public class SystemParameterResource {
      * {@code DELETE  /system-parameters/:id} : delete the "id" systemParameter.
      *
      * @param id the id of the systemParameter to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.    
      */
     @DeleteMapping("/system-parameters/{id}")
     public ResponseEntity<Void> deleteSystemParameter(@PathVariable Long id) {
