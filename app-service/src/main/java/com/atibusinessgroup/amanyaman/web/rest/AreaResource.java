@@ -36,8 +36,7 @@ public class AreaResource {
 
     private static final String ENTITY_NAME = "area";
 
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
+    private String applicationName = "AMANYAMAN";
 
     private final AreaService areaService;
 
