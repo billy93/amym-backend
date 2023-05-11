@@ -28,7 +28,7 @@ import java.util.Optional;
  * REST controller for managing {@link com.atibusinessgroup.amanyaman.domain.City}.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/app")
 public class CityResource {
 
     private final Logger log = LoggerFactory.getLogger(CityResource.class);
