@@ -1,5 +1,4 @@
 package com.atibusinessgroup.amanyaman.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,7 +13,7 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowCredentials(true);
-        corsConfig.addAllowedOrigin("*");
+        corsConfig.addAllowedOriginPattern("*"); // Use allowedOriginPatterns instead
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
 
@@ -23,4 +22,3 @@ public class CorsConfig {
         return new CorsWebFilter(source);
     }
 }
-
