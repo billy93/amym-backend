@@ -6,9 +6,6 @@ import com.atibusinessgroup.amanyaman.domain.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
-// import com.atibusinessgroup.amanyaman.module.master.systemParameter.dto.SystemParameterDTO;
-// import io.github.jhipster.config.JHipsterProperties;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
