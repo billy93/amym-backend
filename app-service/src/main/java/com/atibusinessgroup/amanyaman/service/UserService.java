@@ -7,11 +7,14 @@ import com.atibusinessgroup.amanyaman.repository.AuthorityRepository;
 import com.atibusinessgroup.amanyaman.repository.UserRepository;
 import com.atibusinessgroup.amanyaman.security.SecurityUtils;
 import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
+import com.atibusinessgroup.amanyaman.service.dto.UserTravelAgentDTO;
 import com.atibusinessgroup.amanyaman.util.AuthoritiesConstants;
 import com.atibusinessgroup.amanyaman.util.RandomUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -341,4 +344,26 @@ public class UserService {
     public void updateUserLastLatestFeed(long userId){
         userRepository.updateUserLastLatestFeed(userId);
     }
+
+    @Transactional(readOnly = true)
+    public Page<UserTravelAgentDTO> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map((User u) -> {
+            UserTravelAgentDTO userTravelAgentDTO = new UserTravelAgentDTO();
+            userTravelAgentDTO.setId(u.getId());
+            userTravelAgentDTO.setEmail(u.getEmail());
+            userTravelAgentDTO.setFirstName(u.getFirstName());
+            userTravelAgentDTO.setLastName(u.getLastName());
+            userTravelAgentDTO.setTravelAgentName(u.getTravelAgent().getTravelAgentName());
+            userTravelAgentDTO.setLogin(u.getLogin());
+            userTravelAgentDTO.setCustcode(u.getTravelAgent().getCustcode());
+            userTravelAgentDTO.setRoles(
+                u.getAuthorities().stream().map(
+                    (Authority auth) -> {
+                        return auth.getName();
+                    }).toList()
+            );
+            return userTravelAgentDTO;
+        });
+    }
+
 }

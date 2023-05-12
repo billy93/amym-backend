@@ -79,4 +79,18 @@ public class UserTravelAgentDTO{
 	public void setCustcode(String custcode) {
 		this.custcode = custcode;
 	}
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", travelAgentName='" + travelAgentName + '\'' +
+                ", custcode='" + custcode + '\'' +
+                ", roles=" + roles +
+                '}';
+    }
 }

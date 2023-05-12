@@ -3,7 +3,7 @@ package com.atibusinessgroup.amanyaman.domain;
 import com.atibusinessgroup.amanyaman.config.Constants;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.*;
@@ -15,7 +15,6 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -107,9 +106,9 @@ public class User extends AbstractAuditingEntity{
     @Column(name = "last_latest_feed")
     private Instant lastLatestFeed;
 
-    // @ManyToOne
-    // @JsonIgnoreProperties(value = "users", allowSetters = true)
-    // private TravelAgent travelAgent;
+    @ManyToOne
+    @JsonIgnoreProperties(value = "users", allowSetters = true)
+    private TravelAgent travelAgent;
 
     @Override
     public boolean equals(Object o) {

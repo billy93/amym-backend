@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.atibusinessgroup.amanyaman.domain.Authority;
 import com.atibusinessgroup.amanyaman.domain.User;
 
 import io.jsonwebtoken.Claims;
@@ -52,7 +53,9 @@ public class JWTUtil {
 
     public String generateToken(User user, boolean rememberMe) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getAuthorities());
+        claims.put("role", user.getAuthorities().stream().map((Authority e) -> {
+            return e.getName();
+         }).toList());
         claims.put(TokenKeyConstant.USER_LASTNAME_KEY, user.getLastName());
         claims.put(TokenKeyConstant.USER_FIRSTNAME_KEY, user.getFirstName());
         // if(user.getTravelAgent() != null){

@@ -37,10 +37,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 // import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -341,13 +343,15 @@ public class UserResource {
      *
      * @param pageable the pagination information.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
-     
+    */ 
     @GetMapping("/users")
-    public ResponseEntity<List<UserTravelAgentDTO>> getAllUsers(Pageable pageable) {
-        final Page<UserTravelAgentDTO> page = userService.getAllManagedUsers(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+    public ResponseEntity<List<UserTravelAgentDTO>> getAllUsers(Pageable pageable, ServerHttpRequest serverRequest) {
+        URI uri = serverRequest.getURI();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
+        final Page<UserTravelAgentDTO> page = userService.getAllManagedUsers(pageable);        
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
-    }*/
+    }
 
     /**
      * {@code GET /users/search} : get all users.
