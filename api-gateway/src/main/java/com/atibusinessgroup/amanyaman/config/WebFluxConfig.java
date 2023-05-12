@@ -15,9 +15,4 @@ public class WebFluxConfig implements WebFluxConfigurer {
         resolver.setFallbackPageable(PageRequest.of(0, 10));
         configurer.addCustomResolver(resolver);
     }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
-    }
 }
