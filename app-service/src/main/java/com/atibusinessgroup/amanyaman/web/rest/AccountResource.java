@@ -9,6 +9,7 @@ import com.atibusinessgroup.amanyaman.service.MailService;
 import com.atibusinessgroup.amanyaman.service.UserService;
 // import com.atibusinessgroup.amanyaman.service.dto.PasswordChangeDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
+import com.atibusinessgroup.amanyaman.web.rest.dto.PasswordResetRequestDTO;
 import com.atibusinessgroup.amanyaman.web.rest.errors.*;
 // import com.atibusinessgroup.amanyaman.web.rest.vm.KeyAndPasswordVM;
 // import com.atibusinessgroup.amanyaman.web.rest.vm.ManagedUserVM;
@@ -190,15 +191,15 @@ public class AccountResource {
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
     }
     */
-
+    
     /**
      * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
      *
      * @param mail the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) {
-        Optional<User> user = userService.requestPasswordReset(mail);
+    public void requestPasswordReset(@RequestBody PasswordResetRequestDTO mail) {
+        Optional<User> user = userService.requestPasswordReset(mail.getEmail());
         if (user.isPresent()) {
             mailService.sendPasswordResetMail(user.get());
         } else {
