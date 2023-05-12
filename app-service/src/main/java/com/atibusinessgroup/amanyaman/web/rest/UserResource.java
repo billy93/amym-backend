@@ -430,14 +430,14 @@ public class UserResource {
      *
      * @param id the id of the user to find.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
-     
+    */
     @GetMapping("/users/getByEmail/{email}")
-    public ResponseEntity<UserTravelAgentDTO> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
         log.debug("REST request to get User : {}", email);
         return ResponseUtil.wrapOrNotFound(
             userService.getUserWithAuthoritiesByEmail(email)
-                .map(UserTravelAgentDTO::new));
-    }*/
+                .map(UserDTO::new));
+    }
 
 
     /**

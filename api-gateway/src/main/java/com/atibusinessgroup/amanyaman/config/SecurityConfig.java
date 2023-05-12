@@ -42,7 +42,10 @@ public class SecurityConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/eureka/**", "/api/authenticate").permitAll()
+                .pathMatchers("/eureka/**", 
+                "/api/authenticate",
+                "/api/app/users/getByEmail/**",
+                "/api/app/account/reset-password/init").permitAll()
                 .anyExchange().authenticated();
         return serverHttpSecurity.build();
     }
