@@ -2,10 +2,15 @@ package com.atibusinessgroup.amanyaman.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import reactor.core.publisher.Mono;
+
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 /**
@@ -22,8 +27,33 @@ public final class SecurityUtils {
      * @return the login of the current user.
      */
     public static Optional<String> getCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+        try {
+            return Optional.ofNullable(ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .doOnNext(authentication -> System.out.println("Authentication object: " + authentication))                
+                .flatMap(authentication -> {
+                    System.out.println("Authentication object: " + authentication);
+                    String principal = extractPrincipal(authentication);
+                    return Mono.just(principal);
+                })
+                .defaultIfEmpty("EMPTY")
+                .toFuture()
+                .get());
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+        
+        // SecurityContext securityContext = SecurityContextHolder.getContext();
+        // return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+        
+        // return Optional.of(ReactiveSecurityContextHolder.getContext()
+        //         .map(SecurityContext::getAuthentication)
+        //         .map(authentication -> extractPrincipal(authentication)).block());
     }
 
     

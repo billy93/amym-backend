@@ -24,11 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 // import javax.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import reactor.core.publisher.Mono;
+
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -109,6 +113,19 @@ public class AccountResource {
     public String isAuthenticated(HttpServletRequest request) {
         log.debug("REST request to check if the current user is authenticated");
         return request.getRemoteUser();
+    }
+
+    @GetMapping("/test")
+    public String test(){
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // System.out.println(authentication.getPrincipal());
+        // Mono<String> user = ReactiveSecurityContextHolder.getContext()
+        //     .map(SecurityContext::getAuthentication)
+        //     .map(Authentication::getPrincipal)
+        //     .cast(String.class);
+       Optional<String> getUserLogin = SecurityUtils.getCurrentUserLogin();
+        System.out.println("USER LOGIN : "+getUserLogin.get());
+        return getUserLogin.get();
     }
 
     /**
@@ -251,7 +268,7 @@ public class AccountResource {
             }
 
             mailService.sendFinishPasswordReset(user.get());
-            return ResponseEntity.ok().body("Success");
+            return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
     }
