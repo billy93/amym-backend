@@ -243,10 +243,10 @@ public class UserService {
        return userRepository.findOneWithAuthoritiesById(id);
    }
 
-    @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
-    }
+    // @Transactional(readOnly = true)
+    // public Optional<User> getUserWithAuthorities() {
+    //     return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+    // }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthoritiesByEmail(String email) {

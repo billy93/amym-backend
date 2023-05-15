@@ -6,6 +6,8 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.atibusinessgroup.amanyaman.config.Constants;
+
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -26,36 +28,13 @@ public final class SecurityUtils {
      *
      * @return the login of the current user.
      */
-    public static Optional<String> getCurrentUserLogin() {
-        try {
-            return Optional.ofNullable(ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .doOnNext(authentication -> System.out.println("Authentication object: " + authentication))                
-                .flatMap(authentication -> {
-                    System.out.println("Authentication object: " + authentication);
-                    String principal = extractPrincipal(authentication);
-                    return Mono.just(principal);
-                })
-                .defaultIfEmpty("EMPTY")
-                .toFuture()
-                .get());
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-        
-        // SecurityContext securityContext = SecurityContextHolder.getContext();
-        // return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
-        
-        // return Optional.of(ReactiveSecurityContextHolder.getContext()
-        //         .map(SecurityContext::getAuthentication)
-        //         .map(authentication -> extractPrincipal(authentication)).block());
+    public static Mono<String> getCurrentUserLogin() {
+        return ReactiveSecurityContextHolder.getContext()
+            .map(SecurityContext::getAuthentication)
+            .map(authentication -> extractPrincipal(authentication))
+            .map(principal -> principal != null ? principal : Constants.SYSTEM_ACCOUNT)
+            .cast(String.class);
     }
-
     
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
@@ -65,7 +44,6 @@ public final class SecurityUtils {
         }
         return null;
     }
-
 
     /**
      * Get the JWT of the current user.

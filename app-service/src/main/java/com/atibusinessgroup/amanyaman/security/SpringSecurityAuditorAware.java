@@ -1,20 +1,19 @@
 package com.atibusinessgroup.amanyaman.security;
 
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
-import com.atibusinessgroup.amanyaman.config.Constants;
-
-import java.util.Optional;
 
 /**
  * Implementation of {@link AuditorAware} based on Spring Security.
  */
 @Component
-public class SpringSecurityAuditorAware implements AuditorAware<String> {
+public class SpringSecurityAuditorAware implements ReactiveAuditorAware<String> {
 
     @Override
-    public Optional<String> getCurrentAuditor() {
-        return Optional.of(SecurityUtils.getCurrentUserLogin().orElse(Constants.SYSTEM_ACCOUNT));
+    public Mono<String> getCurrentAuditor() {        
+        return SecurityUtils.getCurrentUserLogin();
     }
 }

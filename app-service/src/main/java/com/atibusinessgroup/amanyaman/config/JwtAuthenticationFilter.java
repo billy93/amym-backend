@@ -29,13 +29,10 @@ public class JwtAuthenticationFilter extends AuthenticationWebFilter {
     }
 
     private Mono<Authentication> convert(ServerWebExchange exchange) {
-        String token = extractTokenFromRequest(exchange.getRequest());
-        System.out.println("JwtAuthenticationFilter convert token : "+token);
-        
+        String token = extractTokenFromRequest(exchange.getRequest());        
         if (token != null) {
             try {
                 Claims claims = jwtUtil.getAllClaimsFromToken(token);
-
                 String username = claims.getSubject();
                 Authentication authentication = new UsernamePasswordAuthenticationToken(username, null);
                 return Mono.just(authentication);

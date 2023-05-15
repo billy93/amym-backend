@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -116,16 +117,14 @@ public class AccountResource {
     }
 
     @GetMapping("/test")
-    public String test(){
+    public Mono<String> test(){
         // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // System.out.println(authentication.getPrincipal());
-        // Mono<String> user = ReactiveSecurityContextHolder.getContext()
-        //     .map(SecurityContext::getAuthentication)
-        //     .map(Authentication::getPrincipal)
-        //     .cast(String.class);
-       Optional<String> getUserLogin = SecurityUtils.getCurrentUserLogin();
-        System.out.println("USER LOGIN : "+getUserLogin.get());
-        return getUserLogin.get();
+        Mono<String> user = ReactiveSecurityContextHolder.getContext()
+            .map(SecurityContext::getAuthentication)
+            .map(Authentication::getPrincipal)
+            .cast(String.class);
+        return user;
     }
 
     /**

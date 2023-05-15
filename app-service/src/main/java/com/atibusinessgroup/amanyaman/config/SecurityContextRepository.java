@@ -25,13 +25,10 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
 
     @Override
     public Mono<SecurityContext> load(ServerWebExchange swe) {
-        System.out.println("SETUP AUTHENTICATION IN CHILD");
         return Mono.justOrEmpty(swe.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
             .filter(authHeader -> authHeader.startsWith("Bearer "))
             .flatMap(authHeader -> {
                 String authToken = authHeader.substring(7);
-                System.out.println("AUTH TOKEN : "+authToken);
-        
                 Authentication auth = new UsernamePasswordAuthenticationToken(authToken, authToken);
                 return this.authenticationManager.authenticate(auth).map(SecurityContextImpl::new);
             });
