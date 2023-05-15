@@ -10,9 +10,11 @@ import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserTravelAgentDTO;
 import com.atibusinessgroup.amanyaman.util.AuthoritiesConstants;
 import com.atibusinessgroup.amanyaman.util.RandomUtil;
+import com.atibusinessgroup.amanyaman.web.rest.dto.UserSearchRequestDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -346,8 +348,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserTravelAgentDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map((User u) -> {
+    public Page<UserTravelAgentDTO> getAllManagedUsers(Pageable pageable, UserSearchRequestDTO userSearchRequestDTO) {
+        return userRepository.findAllBy(userSearchRequestDTO, pageable).map((User u) -> {
             UserTravelAgentDTO userTravelAgentDTO = new UserTravelAgentDTO();
             userTravelAgentDTO.setId(u.getId());
             userTravelAgentDTO.setEmail(u.getEmail());

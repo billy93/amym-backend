@@ -45,7 +45,8 @@ public class SecurityConfig {
                 .pathMatchers("/eureka/**", 
                 "/api/authenticate",
                 "/api/app/users/getByEmail/**",
-                "/api/app/account/reset-password/init").permitAll()
+                "/api/app/account/reset-password/init",
+                "/api/app/account/reset-password/finish").permitAll()
                 .anyExchange().authenticated();
         return serverHttpSecurity.build();
     }

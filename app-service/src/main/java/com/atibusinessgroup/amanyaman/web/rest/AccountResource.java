@@ -9,6 +9,8 @@ import com.atibusinessgroup.amanyaman.service.MailService;
 import com.atibusinessgroup.amanyaman.service.UserService;
 // import com.atibusinessgroup.amanyaman.service.dto.PasswordChangeDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
+import com.atibusinessgroup.amanyaman.web.rest.dto.KeyAndPasswordDTO;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ManagedUserDTO;
 import com.atibusinessgroup.amanyaman.web.rest.dto.PasswordResetRequestDTO;
 import com.atibusinessgroup.amanyaman.web.rest.errors.*;
 // import com.atibusinessgroup.amanyaman.web.rest.vm.KeyAndPasswordVM;
@@ -21,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -232,27 +235,30 @@ public class AccountResource {
      * @param keyAndPassword the generated key and the new password.
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the password is incorrect.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
-     
+    */
     @PostMapping(path = "/account/reset-password/finish")
-    public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
+    public ResponseEntity<String> finishPasswordReset(@RequestBody KeyAndPasswordDTO keyAndPassword) {
         if (!checkPasswordLength(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
         }
-        Optional<User> user =
-            userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-        if (!user.isPresent()) {
-            throw new AccountResourceException("No user was found for this reset key");
+        if(keyAndPassword.getNewPassword().contentEquals(keyAndPassword.getPasswordRetype())){
+            Optional<User> user =
+                userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
+
+            if (!user.isPresent()) {
+                throw new AccountResourceException("No user was found for this reset key");
+            }
+
+            mailService.sendFinishPasswordReset(user.get());
+            return ResponseEntity.ok().body("Success");
         }
-
-        mailService.sendFinishPasswordReset(user.get());
-
+        return ResponseEntity.badRequest().build();
     }
-    */
 
-    // private static boolean checkPasswordLength(String password) {
-    //     return !StringUtils.isEmpty(password) &&
-    //         password.length() >= ManagedUserVM.PASSWORD_MIN_LENGTH &&
-    //         password.length() <= ManagedUserVM.PASSWORD_MAX_LENGTH;
-    // }
+    private static boolean checkPasswordLength(String password) {
+        return !StringUtils.isEmpty(password) &&
+            password.length() >= ManagedUserDTO.PASSWORD_MIN_LENGTH &&
+            password.length() <= ManagedUserDTO.PASSWORD_MAX_LENGTH;
+    }
 }

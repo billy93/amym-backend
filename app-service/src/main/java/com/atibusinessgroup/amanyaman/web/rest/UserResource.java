@@ -2,6 +2,7 @@ package com.atibusinessgroup.amanyaman.web.rest;
 
 import com.atibusinessgroup.amanyaman.config.Constants;
 import com.atibusinessgroup.amanyaman.domain.Authority;
+import com.atibusinessgroup.amanyaman.domain.TravelAgent;
 // import com.atibusinessgroup.amanyaman.domain.TravelAgent;
 import com.atibusinessgroup.amanyaman.domain.User;
 // import com.atibusinessgroup.amanyaman.module.master.user.query.dto.UserCriteria;
@@ -15,12 +16,18 @@ import com.atibusinessgroup.amanyaman.service.dto.UserTravelAgentDTO;
 import com.atibusinessgroup.amanyaman.util.HeaderUtil;
 import com.atibusinessgroup.amanyaman.util.PaginationUtil;
 import com.atibusinessgroup.amanyaman.util.ResponseUtil;
+import com.atibusinessgroup.amanyaman.web.rest.dto.UserSearchRequestDTO;
 // import com.atibusinessgroup.amanyaman.service.dto.UserTravelAgentDTO;
 import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
 import com.atibusinessgroup.amanyaman.web.rest.errors.EmailAlreadyUsedException;
 import com.atibusinessgroup.amanyaman.web.rest.errors.LoginAlreadyUsedException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 // import org.apache.poi.ss.usermodel.Cell;
 // import org.apache.poi.ss.usermodel.CellType;
 // import org.apache.poi.ss.usermodel.Row;
@@ -30,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -345,10 +354,10 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
     */ 
     @GetMapping("/users")
-    public ResponseEntity<List<UserTravelAgentDTO>> getAllUsers(Pageable pageable, ServerHttpRequest serverRequest) {
+    public ResponseEntity<List<UserTravelAgentDTO>> getAllUsers(UserSearchRequestDTO userSearchRequestDTO, Pageable pageable, ServerHttpRequest serverRequest) {
         URI uri = serverRequest.getURI();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
-        final Page<UserTravelAgentDTO> page = userService.getAllManagedUsers(pageable);        
+        final Page<UserTravelAgentDTO> page = userService.getAllManagedUsers(pageable, userSearchRequestDTO);        
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -501,7 +510,7 @@ public class UserResource {
             .body(file);
     }
 
-    /* 
+    /*   
     @ResponseStatus(OK)
     @PostMapping("/users/list/import")
     public ResponseEntity<List<UserTravelAgentDTO>> importExcelFile(@RequestParam("file") MultipartFile files) throws IOException {
@@ -542,7 +551,7 @@ public class UserResource {
                     try {
                         Set<String> authoritySet = new HashSet<>();
                         authoritySet.add(row.getCell(3).getStringCellValue());
-                        user.setAuthorities(authoritySet);
+                        user.setRoles(authoritySet);
                     } catch (Exception e) {
 
                     }
@@ -587,7 +596,8 @@ public class UserResource {
         }
         for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
             Cell cell = row.getCell(cellNum);
-            if (cell != null && cell.getCellTypeEnum() != CellType.BLANK && StringUtils.isNotBlank(cell.toString()) && !cell.toString().contentEquals("")) {
+            cell.getCellType()
+            if (cell != null && cell.getCellType() != CellType.BLANK && StringUtils.isNotBlank(cell.toString()) && !cell.toString().contentEquals("")) {
                 return false;
             }
         }

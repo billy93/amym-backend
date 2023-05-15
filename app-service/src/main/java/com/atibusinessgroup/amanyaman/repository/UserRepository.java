@@ -2,11 +2,13 @@ package com.atibusinessgroup.amanyaman.repository;
 
 // import com.atibusinessgroup.amanyaman.domain.Product;
 import com.atibusinessgroup.amanyaman.domain.User;
+import com.atibusinessgroup.amanyaman.web.rest.dto.UserSearchRequestDTO;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -59,4 +61,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "update jhi_user set last_latest_feed = NOW() where id = :userId",
         nativeQuery = true)
     void updateUserLastLatestFeed(long userId);
+
+    @Query("SELECT u FROM User u WHERE (:#{#criteria.name} IS NULL OR CONCAT(u.firstName, ' ', u.lastName) LIKE %:#{#criteria.name}%) " +
+            "AND (:#{#criteria.email} IS NULL OR u.email LIKE %:#{#criteria.email}%) " +
+            "AND (:#{#criteria.role} IS NULL OR EXISTS (SELECT 1 FROM u.authorities a WHERE a.name = :#{#criteria.role}))")
+    Page<User> findAllBy(@Param("criteria")UserSearchRequestDTO criteria, Pageable pageable);
 }
