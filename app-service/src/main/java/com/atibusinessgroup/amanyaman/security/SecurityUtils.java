@@ -2,17 +2,11 @@ package com.atibusinessgroup.amanyaman.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.atibusinessgroup.amanyaman.config.Constants;
-
-import reactor.core.publisher.Mono;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 /**
@@ -28,22 +22,38 @@ public final class SecurityUtils {
      *
      * @return the login of the current user.
      */
-    public static Mono<String> getCurrentUserLogin() {
-        return ReactiveSecurityContextHolder.getContext()
-            .map(SecurityContext::getAuthentication)
-            .map(authentication -> extractPrincipal(authentication))
-            .map(principal -> principal != null ? principal : Constants.SYSTEM_ACCOUNT)
-            .cast(String.class);
+    public static Optional<String> getCurrentUserLogin() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
     }
-    
+
+    // public static UserAmanyaman.UserAmamyamanType getAuthenticationProvider(){
+    //     UserAmanyaman userAmanyaman = getUserPolicy();
+    //     return userAmanyaman.getType();
+    // }
+
+    // public static UserAmanyaman getUserPolicy(){
+    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    //     return (UserAmanyaman) authentication.getPrincipal();
+    // }
+
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
-        } else if (authentication.getPrincipal() instanceof String) {
+        } 
+        // else if (authentication.getPrincipal() instanceof UserAmanyaman) {
+        //     UserAmanyaman springSecurityUser = (UserAmanyaman) authentication.getPrincipal();
+        //     return springSecurityUser.getUsername();
+        // } else if (authentication.getPrincipal() instanceof UserDetails) {
+        //     UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+        //     return springSecurityUser.getUsername();
+        // } 
+        else if (authentication.getPrincipal() instanceof String) {
             return (String) authentication.getPrincipal();
         }
         return null;
     }
+
 
     /**
      * Get the JWT of the current user.
