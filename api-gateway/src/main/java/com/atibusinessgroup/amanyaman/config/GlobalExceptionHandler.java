@@ -15,11 +15,24 @@ import com.atibusinessgroup.amanyaman.web.rest.errors.UnlockedException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class, LockedException.class, UserLockedException.class, UnlockedException.class})
-    public ResponseEntity<String> handleException(Exception exception) {
+    public ResponseEntity<Response> handleException(Exception exception) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         String message = exception.getMessage();
 
-        return ResponseEntity.status(status).body(message);
+        Response resp = new Response();
+        resp.setMessage(message);
+        return ResponseEntity.status(status).body(resp);
     }
 
+    public class Response{
+        public String message;
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+    }
 }

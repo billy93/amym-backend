@@ -227,8 +227,8 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
-    
-    @PutMapping("/users/update")
+     */
+    @PutMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<UserDTO> updateUserAmanyaman(@Valid @RequestBody UserTravelAgentDTO userDTO) throws URISyntaxException {
         log.debug("REST request to update User : {}", userDTO);
@@ -245,7 +245,7 @@ public class UserResource {
         return ResponseUtil.wrapOrNotFound(updatedUser,
             HeaderUtil.createAlert(applicationName, "A user is updated with identifier " + userDTO.getLogin(), userDTO.getLogin()));
     }
- */
+
     public static class UserLatestFeed{
         private long userId;
 
@@ -283,28 +283,27 @@ public class UserResource {
      * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already in use.
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use.
      */
-    @PutMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
-        log.debug("REST request to update User : {}", userDTO);
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
-            throw new EmailAlreadyUsedException();
-        }
-        existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
-            throw new LoginAlreadyUsedException();
-        }
-        Optional<UserDTO> updatedUser = userService.updateUser(userDTO);
-
-        return ResponseUtil.wrapOrNotFound(updatedUser,
-            HeaderUtil.createAlert(applicationName, "A user is updated with identifier " + userDTO.getLogin(), userDTO.getLogin()));
-    }
+//    @PutMapping("/users")
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+//    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
+//        log.debug("REST request to update User : {}", userDTO);
+//        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
+//        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
+//            throw new EmailAlreadyUsedException();
+//        }
+//        existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
+//        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
+//            throw new LoginAlreadyUsedException();
+//        }
+//        Optional<UserDTO> updatedUser = userService.updateUser(userDTO);
+//
+//        return ResponseUtil.wrapOrNotFound(updatedUser,
+//            HeaderUtil.createAlert(applicationName, "A user is updated with identifier " + userDTO.getLogin(), userDTO.getLogin()));
+//    }
 
     /**
      * {@code PUT /users} : Updates an existing User.
      *
-     * @param userDTO the user to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated user.
      * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already in use.
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use.
@@ -439,7 +438,7 @@ public class UserResource {
     /**
      * {@code GET /users/:login} : get the "login" user.
      *
-     * @param id the id of the user to find.
+     * @param email the id of the user to find.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
     */
     @GetMapping("/users/getByEmail/{email}")
@@ -481,18 +480,18 @@ public class UserResource {
 
 
     /**
-     * {@code DELETE /users/:login} : delete the "login" User.
+     * {@code DELETE /users/:id} : delete the "id" User.
      *
-     * @param login the login of the user to delete.
+     * @param id the id of the user to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @DeleteMapping("/users/{id}")
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')" +
         " || hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
-    public ResponseEntity<Void> deleteUser(@PathVariable String login) {
-        log.debug("REST request to delete User: {}", login);
-        userService.deleteUser(login);
-        return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName,  "A user is deleted with identifier " + login, login)).build();
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        log.debug("REST request to delete User: {}", id);
+        userService.deleteUser(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createAlert(applicationName,  "A user is deleted with identifier " + id, id)).build();
     }
 
     @PostMapping("/users/list/export")

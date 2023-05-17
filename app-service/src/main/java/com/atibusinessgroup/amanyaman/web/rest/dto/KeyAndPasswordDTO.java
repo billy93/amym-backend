@@ -33,4 +33,13 @@ public class KeyAndPasswordDTO {
     public void setPasswordRetype(String passwordRetype) {
         this.passwordRetype = passwordRetype;
     }
+
+    @Override
+    public String toString() {
+        return "KeyAndPasswordDTO{" +
+                "key='" + key + '\'' +
+                ", newPassword='" + newPassword + '\'' +
+                ", passwordRetype='" + passwordRetype + '\'' +
+                '}';
+    }
 }

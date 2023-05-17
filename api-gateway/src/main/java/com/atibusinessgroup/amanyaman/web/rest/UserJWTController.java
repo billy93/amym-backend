@@ -78,7 +78,7 @@ public class UserJWTController {
     }
 
     @PostMapping("/api/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
+    public ResponseEntity authorize(@Valid @RequestBody LoginVM loginVM) {
         String login = loginVM.getUsername().toLowerCase(Locale.ENGLISH);
         if (new EmailValidator().isValid(loginVM.getUsername(), null)) {
             User u = loadUserByUsername(login);
@@ -128,7 +128,8 @@ public class UserJWTController {
                 if(u.isActivated() && u.isAccountNonLocked()) {
                     if(u.getFailedAttempt() < UserService.MAX_FAILED_ATTEMPTS - 1) {
                         u = userService.increaseFailedAttempt(u);
-                        throw new BadCredentialsException(String.valueOf(UserService.MAX_FAILED_ATTEMPTS - u.getFailedAttempt()));
+                        String errorMessage = String.format("Invalid credentials. You have %d more attempts before your account gets locked.", UserService.MAX_FAILED_ATTEMPTS - u.getFailedAttempt());
+                        throw new BadCredentialsException(errorMessage);
                     }
                     else{
                         userService.lock(u);
@@ -138,11 +139,19 @@ public class UserJWTController {
                 throw e;
             } catch(LockedException exception){
                 if(userService.checkPassword(u, loginVM.getPassword())){
-                    if(userService.unlock(u)){
-                        throw new UnlockedException("Your account has been unlocked, Please try to login again.");
+                    if(u.getResetKey() != null){
+                        FirstLoginResponse resp = new FirstLoginResponse();
+                        resp.setResetKey(u.getResetKey());
+                        return ResponseEntity.status(HttpStatusCode.valueOf(401))
+                                .body(resp);
                     }
                     else{
-                        throw new LockedException("User account is locked.");
+                        if(userService.unlock(u)){
+                            throw new UnlockedException("Your account has been unlocked, Please try to login again.");
+                        }
+                        else{
+                            throw new LockedException("User account is locked.");
+                        }
                     }
                 } else{
                     throw new LockedException("User account is locked.");
@@ -151,6 +160,18 @@ public class UserJWTController {
         
         }
         return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+    }
+
+    public class FirstLoginResponse{
+        public String resetKey;
+
+        public String getResetKey() {
+            return resetKey;
+        }
+
+        public void setResetKey(String resetKey) {
+            this.resetKey = resetKey;
+        }
     }
 
     @GetMapping("/api/test")

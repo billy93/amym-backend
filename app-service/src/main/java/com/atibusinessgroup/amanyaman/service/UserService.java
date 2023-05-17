@@ -6,6 +6,7 @@ import com.atibusinessgroup.amanyaman.domain.User;
 import com.atibusinessgroup.amanyaman.repository.AuthorityRepository;
 import com.atibusinessgroup.amanyaman.repository.UserRepository;
 import com.atibusinessgroup.amanyaman.security.SecurityUtils;
+import com.atibusinessgroup.amanyaman.service.dto.TravelAgentDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserTravelAgentDTO;
 import com.atibusinessgroup.amanyaman.util.AuthoritiesConstants;
@@ -44,7 +45,7 @@ public class UserService {
 
     // private final CacheManager cacheManager;
 
-    // private final TravelAgentService travelAgentService;
+    private final TravelAgentService travelAgentService;
 
     // private final MailService mailService;
 
@@ -52,7 +53,8 @@ public class UserService {
     public static final long LOCK_TIME_DURATION = 1 * 60 * 1000;
 //    public static final long LOCK_TIME_DURATION = 24 * 60 * 60 * 1000;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository,
+                       TravelAgentService travelAgentService
     // , CacheManager cacheManager
     // , TravelAgentService travelAgentService, MailService mailService
     ) {
@@ -60,7 +62,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         // this.cacheManager = cacheManager;
-        // this.travelAgentService = travelAgentService;
+         this.travelAgentService = travelAgentService;
         // this.mailService = mailService;
     }
 
@@ -85,7 +87,9 @@ public class UserService {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 user.setResetKey(null);
                 user.setResetDate(null);
-                this.clearUserCaches(user);
+                user.setLockTime(null);
+                user.setFailedAttempt(0);
+                user.setAccountNonLocked(true);
                 return user;
             });
     }
@@ -139,6 +143,43 @@ public class UserService {
         return newUser;
     }
 
+    /**
+     * Update all information for a specific user, and return the modified user.
+     *
+     * @param userDTO user to update.
+     * @return updated user.
+     */
+    public Optional<UserDTO> updateUserTravelAgent(UserTravelAgentDTO userDTO) {
+        return Optional.of(userRepository
+                .findById(userDTO.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(user -> {
+                    user.setLogin(userDTO.getLogin().toLowerCase());
+                    user.setFirstName(userDTO.getFirstName());
+                    user.setLastName(userDTO.getLastName());
+//                    if(userDTO.getTravelAgent() != null) {
+//                        if(userDTO.getTravelAgent().getId() != null) {
+//                            user.setTravelAgent(travelAgentService.findOne(userDTO.getTravelAgent().getId()).get());
+//                        }
+//                    } else {
+//                        user.setTravelAgent(null);
+//                    }
+                    if (userDTO.getEmail() != null) {
+                        user.setEmail(userDTO.getEmail().toLowerCase());
+                    }
+                    Set<Authority> managedAuthorities = user.getAuthorities();
+                    managedAuthorities.clear();
+                    userDTO.getAuthorities().stream()
+                            .map(authorityRepository::findById)
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .forEach(managedAuthorities::add);
+                    log.debug("Changed Information for User: {}", user);
+                    return user;
+                })
+                .map(UserDTO::new);
+    }
     private boolean removeNonActivatedUser(User existingUser) {
         if (existingUser.isActivated()) {
              return false;
@@ -219,10 +260,9 @@ public class UserService {
             .map(UserDTO::new);
     }
 
-    public void deleteUser(String login) {
-        userRepository.findOneByLogin(login).ifPresent(user -> {
+    public void deleteUser(String id) {
+        userRepository.findById(Long.parseLong(id)).ifPresent(user -> {
             userRepository.delete(user);
-            this.clearUserCaches(user);
             log.debug("Deleted User: {}", user);
         });
     }
@@ -357,16 +397,17 @@ public class UserService {
             userTravelAgentDTO.setLastName(u.getLastName());
             
             if(u.getTravelAgent() != null){
-                userTravelAgentDTO.setTravelAgentName(u.getTravelAgent().getTravelAgentName());
-                userTravelAgentDTO.setCustcode(u.getTravelAgent().getCustcode());
+                TravelAgentDTO travelAgentDTO = new TravelAgentDTO();
+                travelAgentDTO.setTravelAgentName(u.getTravelAgent().getTravelAgentName());
+                userTravelAgentDTO.setTravelAgent(travelAgentDTO);
             }
             
             userTravelAgentDTO.setLogin(u.getLogin());
-            userTravelAgentDTO.setRoles(
+            userTravelAgentDTO.setAuthorities(
                 u.getAuthorities().stream().map(
                     (Authority auth) -> {
                         return auth.getName();
-                    }).toList()
+                    }).collect(Collectors.toSet())
             );
             return userTravelAgentDTO;
         });
