@@ -50,6 +50,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 // import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -354,11 +355,9 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
     */ 
     @GetMapping("/users")
-    public ResponseEntity<List<UserTravelAgentDTO>> getAllUsers(UserSearchRequestDTO userSearchRequestDTO, Pageable pageable, ServerHttpRequest serverRequest) {
-        URI uri = serverRequest.getURI();
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
+    public ResponseEntity<List<UserTravelAgentDTO>> getAllUsers(UserSearchRequestDTO userSearchRequestDTO, Pageable pageable) {
         final Page<UserTravelAgentDTO> page = userService.getAllManagedUsers(pageable, userSearchRequestDTO);        
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

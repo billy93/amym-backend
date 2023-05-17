@@ -355,9 +355,13 @@ public class UserService {
             userTravelAgentDTO.setEmail(u.getEmail());
             userTravelAgentDTO.setFirstName(u.getFirstName());
             userTravelAgentDTO.setLastName(u.getLastName());
-            userTravelAgentDTO.setTravelAgentName(u.getTravelAgent().getTravelAgentName());
+            
+            if(u.getTravelAgent() != null){
+                userTravelAgentDTO.setTravelAgentName(u.getTravelAgent().getTravelAgentName());
+                userTravelAgentDTO.setCustcode(u.getTravelAgent().getCustcode());
+            }
+            
             userTravelAgentDTO.setLogin(u.getLogin());
-            userTravelAgentDTO.setCustcode(u.getTravelAgent().getCustcode());
             userTravelAgentDTO.setRoles(
                 u.getAuthorities().stream().map(
                     (Authority auth) -> {
