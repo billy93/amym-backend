@@ -15,8 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -88,12 +88,9 @@ public class SystemParameterResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of systemParameters in body.
      */
     @GetMapping("/system-parameters")
-    public ResponseEntity<List<SystemParameter>> getAllSystemParameters(Pageable pageable, ServerHttpRequest serverRequest) {
-        URI uri = serverRequest.getURI();
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
+    public ResponseEntity<List<SystemParameter>> getAllSystemParameters(Pageable pageable) {
         Page<SystemParameter> page = systemParameterService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
-        
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);        
         return ResponseEntity.ok()
             .headers(headers)
             .body(page.getContent());

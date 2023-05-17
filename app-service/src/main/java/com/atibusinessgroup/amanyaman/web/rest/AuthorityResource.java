@@ -11,8 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -46,14 +46,10 @@ public class AuthorityResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authorities in body.
      */
     @GetMapping("/authorities")
-    public ResponseEntity<List<Authority>> getAllauthorities(Pageable pageable, ServerHttpRequest serverRequest) {
+    public ResponseEntity<List<Authority>> getAllauthorities(Pageable pageable) {
         log.debug("REST request to get a page of authorities");
         Page<Authority> page = authorityService.findAll(pageable);
-
-        URI uri = serverRequest.getURI();
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
-
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);        
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

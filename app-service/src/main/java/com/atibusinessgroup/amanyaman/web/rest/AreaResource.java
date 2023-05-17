@@ -9,15 +9,12 @@ import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -93,12 +90,10 @@ public class AreaResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of areas in body.
      */
     @GetMapping("/areas")
-    public ResponseEntity<List<Area>> getAllAreas(Pageable pageable, ServerHttpRequest serverRequest) {
+    public ResponseEntity<List<Area>> getAllAreas(Pageable pageable) {
         log.debug("REST request to get Area");
         Page<Area> page = areaService.findAll(pageable);        
-        URI uri = serverRequest.getURI();
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);        
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(builder, page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
