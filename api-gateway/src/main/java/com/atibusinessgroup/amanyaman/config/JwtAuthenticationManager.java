@@ -3,10 +3,13 @@ package com.atibusinessgroup.amanyaman.config;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -22,21 +25,24 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
     private JWTUtil jwtUtil;
 
     @Override
-    @SuppressWarnings("unchecked")
     public Mono<Authentication> authenticate(Authentication authentication) {
         String authToken = authentication.getCredentials().toString();
-        String username = jwtUtil.getUsernameFromToken(authToken);
-        return Mono.just(jwtUtil.validateToken(authToken))
-            .filter(valid -> valid)
-            .switchIfEmpty(Mono.empty())
-            .map(valid -> {
-                Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
-                List<String> rolesMap = claims.get("role", List.class);
-                return new UsernamePasswordAuthenticationToken(
+
+        try {
+            String username = jwtUtil.getUsernameFromToken(authToken);
+            jwtUtil.validateToken(authToken);
+            Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
+            List<String> rolesMap = claims.get("role", List.class);
+
+            return Mono.just(new UsernamePasswordAuthenticationToken(
                     username,
                     null,
                     rolesMap.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
-                );
-            });
+            ));
+        } catch (SignatureException e) {
+            return Mono.error(new BadCredentialsException("Invalid token signature"));
+        } catch (Exception e) {
+            return Mono.error(new BadCredentialsException("Invalid token"));
+        }
     }
 }
