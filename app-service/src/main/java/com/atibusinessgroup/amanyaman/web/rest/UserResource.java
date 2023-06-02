@@ -11,6 +11,7 @@ import com.atibusinessgroup.amanyaman.repository.UserRepository;
 import com.atibusinessgroup.amanyaman.security.AuthoritiesConstants;
 import com.atibusinessgroup.amanyaman.security.SecurityUtils;
 import com.atibusinessgroup.amanyaman.service.*;
+import com.atibusinessgroup.amanyaman.service.dto.TravelAgentDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserDTO;
 import com.atibusinessgroup.amanyaman.service.dto.UserTravelAgentDTO;
 import com.atibusinessgroup.amanyaman.util.HeaderUtil;
@@ -36,6 +37,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -102,18 +104,17 @@ public class UserResource {
 
     private final MailService mailService;
     private final ExportService exportService;
-    // private final TravelAgentService travelAgentService;
+     private final TravelAgentService travelAgentService;
 
     public UserResource(UserService userService, UserRepository userRepository, MailService mailService, 
-    ExportService exportService
-    //, TravelAgentService travelAgentService
+    ExportService exportService, TravelAgentService travelAgentService
     ) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.mailService = mailService;
         // this.userQueryService = userQueryService;
         this.exportService = exportService;
-        // this.travelAgentService = travelAgentService;
+         this.travelAgentService = travelAgentService;
     }
 
     /**
@@ -507,8 +508,34 @@ public class UserResource {
             .body(file);
     }
 
-    /*   
-    @ResponseStatus(OK)
+    @PostMapping("/users/list/template/download")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile() throws IOException {
+        Resource file = loadAsResource();
+        String filename = "UserDataTemplate.xlsx";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentLength(file.contentLength())
+                .body(file);
+    }
+
+    public Resource loadAsResource() {
+        try {
+            Resource resource = new ClassPathResource("downloads/UserDataTemplate.xlsx");
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            }
+            else {
+            }
+        }
+        catch (Exception e) {
+        }
+        return null;
+    }
+
+
     @PostMapping("/users/list/import")
     public ResponseEntity<List<UserTravelAgentDTO>> importExcelFile(@RequestParam("file") MultipartFile files) throws IOException {
         HttpStatus status = HttpStatus.OK;
@@ -548,7 +575,7 @@ public class UserResource {
                     try {
                         Set<String> authoritySet = new HashSet<>();
                         authoritySet.add(row.getCell(3).getStringCellValue());
-                        user.setRoles(authoritySet);
+                        user.setAuthorities(authoritySet);
                     } catch (Exception e) {
 
                     }
@@ -593,12 +620,11 @@ public class UserResource {
         }
         for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
             Cell cell = row.getCell(cellNum);
-            cell.getCellType()
             if (cell != null && cell.getCellType() != CellType.BLANK && StringUtils.isNotBlank(cell.toString()) && !cell.toString().contentEquals("")) {
                 return false;
             }
         }
         return true;
     }
-    */
+
 }

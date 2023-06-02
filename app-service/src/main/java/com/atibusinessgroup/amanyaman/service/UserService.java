@@ -47,14 +47,14 @@ public class UserService {
 
     private final TravelAgentService travelAgentService;
 
-    // private final MailService mailService;
+     private final MailService mailService;
 
     public static final int MAX_FAILED_ATTEMPTS = 3;
     public static final long LOCK_TIME_DURATION = 1 * 60 * 1000;
 //    public static final long LOCK_TIME_DURATION = 24 * 60 * 60 * 1000;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository,
-                       TravelAgentService travelAgentService
+                       TravelAgentService travelAgentService, MailService mailService
     // , CacheManager cacheManager
     // , TravelAgentService travelAgentService, MailService mailService
     ) {
@@ -63,7 +63,7 @@ public class UserService {
         this.authorityRepository = authorityRepository;
         // this.cacheManager = cacheManager;
          this.travelAgentService = travelAgentService;
-        // this.mailService = mailService;
+         this.mailService = mailService;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -317,6 +317,16 @@ public class UserService {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
     }
 
+    public void createAllUser(List<UserTravelAgentDTO> userList) {
+        for(UserTravelAgentDTO u : userList){
+            try {
+                User x = createUser(u);
+                mailService.sendCreationEmail(x);
+            } catch(Exception e) {
+                System.out.println("ERROR "+e.getMessage());
+            }
+        }
+    }
 
 
     public User increaseFailedAttempt(User u) {
