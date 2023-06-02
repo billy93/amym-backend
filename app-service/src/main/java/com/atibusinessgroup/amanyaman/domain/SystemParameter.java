@@ -4,6 +4,8 @@ package com.atibusinessgroup.amanyaman.domain;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.time.Instant;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +33,26 @@ public class SystemParameter extends AbstractAuditingEntity {
 
     @Column(name = "value", nullable = false)
     private String value;
+
+    @Override
+    public Instant getCreatedDate() {
+        return super.getCreatedDate();
+    }
+
+    @Override
+    public String getLastModifiedBy() {
+        return super.getLastModifiedBy();
+    }
+
+    @Override
+    public Instant getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @Override
+    public String getCreatedBy() {
+        return super.getCreatedBy();
+    }
 
     @Override
     public boolean equals(Object o) {

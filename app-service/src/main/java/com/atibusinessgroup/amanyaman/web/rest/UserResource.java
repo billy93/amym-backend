@@ -130,7 +130,7 @@ public class UserResource {
      */
     @PostMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) throws URISyntaxException {
+    public ResponseEntity<User> createUser(@Valid @RequestBody UserTravelAgentDTO userDTO) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDTO);
 
         if (userDTO.getId() != null) {
@@ -230,7 +230,7 @@ public class UserResource {
      */
     @PutMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<UserDTO> updateUserAmanyaman(@Valid @RequestBody UserTravelAgentDTO userDTO) throws URISyntaxException {
+    public ResponseEntity<UserTravelAgentDTO> updateUserAmanyaman(@Valid @RequestBody UserTravelAgentDTO userDTO) throws URISyntaxException {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
@@ -240,7 +240,7 @@ public class UserResource {
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
             throw new LoginAlreadyUsedException();
         }
-        Optional<UserDTO> updatedUser = userService.updateUserTravelAgent(userDTO);
+        Optional<UserTravelAgentDTO> updatedUser = userService.updateUserTravelAgent(userDTO);
 
         return ResponseUtil.wrapOrNotFound(updatedUser,
             HeaderUtil.createAlert(applicationName, "A user is updated with identifier " + userDTO.getLogin(), userDTO.getLogin()));
@@ -442,11 +442,11 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
     */
     @GetMapping("/users/getByEmail/{email}")
-    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserTravelAgentDTO> getUserByEmail(@PathVariable String email) {
         log.debug("REST request to get User : {}", email);
         return ResponseUtil.wrapOrNotFound(
             userService.getUserWithAuthoritiesByEmail(email)
-                .map(UserDTO::new));
+                .map(UserTravelAgentDTO::new));
     }
 
 

@@ -56,7 +56,8 @@ public class SecurityConfig  {
                     .requestMatchers(HttpMethod.OPTIONS).permitAll()
                     .requestMatchers("/eureka/**",
                         // "/api/app/users/getByEmail/**",
-                        // "/api/app/account/reset-password/init",
+                        "/api/app/account/reset-password/init",
+                        "/api/app/account/reset-password/finish",
                         "/api/app/**").permitAll()
                     .anyRequest().authenticated();
 

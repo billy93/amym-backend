@@ -73,7 +73,6 @@ public class UserService {
                 // activate given user for the registration key.
                 user.setActivated(true);
                 user.setActivationKey(null);
-                this.clearUserCaches(user);
                 log.debug("Activated user: {}", user);
                 return user;
             });
@@ -100,7 +99,6 @@ public class UserService {
             .map(user -> {
                 user.setResetKey(RandomUtil.generateResetKey());
                 user.setResetDate(Instant.now());
-                this.clearUserCaches(user);
                 return user;
             });
     }
@@ -138,7 +136,6 @@ public class UserService {
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
         userRepository.save(newUser);
-        this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
@@ -149,7 +146,7 @@ public class UserService {
      * @param userDTO user to update.
      * @return updated user.
      */
-    public Optional<UserDTO> updateUserTravelAgent(UserTravelAgentDTO userDTO) {
+    public Optional<UserTravelAgentDTO> updateUserTravelAgent(UserTravelAgentDTO userDTO) {
         return Optional.of(userRepository
                 .findById(userDTO.getId()))
                 .filter(Optional::isPresent)
@@ -158,13 +155,13 @@ public class UserService {
                     user.setLogin(userDTO.getLogin().toLowerCase());
                     user.setFirstName(userDTO.getFirstName());
                     user.setLastName(userDTO.getLastName());
-//                    if(userDTO.getTravelAgent() != null) {
-//                        if(userDTO.getTravelAgent().getId() != null) {
-//                            user.setTravelAgent(travelAgentService.findOne(userDTO.getTravelAgent().getId()).get());
-//                        }
-//                    } else {
-//                        user.setTravelAgent(null);
-//                    }
+                    if(userDTO.getTravelAgent() != null) {
+                        if(userDTO.getTravelAgent().getId() != null) {
+                            user.setTravelAgent(travelAgentService.findOne(userDTO.getTravelAgent().getId()).get());
+                        }
+                    } else {
+                        user.setTravelAgent(null);
+                    }
                     if (userDTO.getEmail() != null) {
                         user.setEmail(userDTO.getEmail().toLowerCase());
                     }
@@ -178,19 +175,19 @@ public class UserService {
                     log.debug("Changed Information for User: {}", user);
                     return user;
                 })
-                .map(UserDTO::new);
+                .map(UserTravelAgentDTO::new);
     }
+
     private boolean removeNonActivatedUser(User existingUser) {
         if (existingUser.isActivated()) {
              return false;
         }
         userRepository.delete(existingUser);
         userRepository.flush();
-        this.clearUserCaches(existingUser);
         return true;
     }
 
-    public User createUser(UserDTO userDTO) {
+    public User createUser(UserTravelAgentDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFirstName(userDTO.getFirstName());
@@ -203,6 +200,13 @@ public class UserService {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
         } else {
             user.setLangKey(userDTO.getLangKey());
+        }
+        if(userDTO.getTravelAgent() != null) {
+            if(userDTO.getTravelAgent().getId() != null) {
+                user.setTravelAgent(travelAgentService.findOne(userDTO.getTravelAgent().getId()).get());
+            }
+        } else {
+            user.setTravelAgent(null);
         }
 //        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         String encryptedPassword = passwordEncoder.encode("abcd1234");
@@ -219,7 +223,6 @@ public class UserService {
             user.setAuthorities(authorities);
         }
         userRepository.save(user);
-        this.clearUserCaches(user);
         log.debug("Created Information for User: {}", user);
         return user;
     }
@@ -236,7 +239,6 @@ public class UserService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
-                this.clearUserCaches(user);
                 user.setLogin(userDTO.getLogin().toLowerCase());
                 user.setFirstName(userDTO.getFirstName());
                 user.setLastName(userDTO.getLastName());
@@ -253,7 +255,6 @@ public class UserService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(managedAuthorities::add);
-                this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
@@ -304,7 +305,6 @@ public class UserService {
             .forEach(user -> {
                 log.debug("Deleting not activated user {}", user.getLogin());
                 userRepository.delete(user);
-                this.clearUserCaches(user);
             });
     }
 
@@ -318,16 +318,9 @@ public class UserService {
     }
 
 
-    private void clearUserCaches(User user) {
-        // Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).evict(user.getLogin());
-        // if (user.getEmail() != null) {
-            // Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
-        // }
-    }
 
     public User increaseFailedAttempt(User u) {
         userRepository.updateFailedAttempt(u.getFailedAttempt()+1, u.getLogin());
-        this.clearUserCaches(u);
         return getUserWithAuthoritiesByLogin(u.getLogin()).get();
     }
 
@@ -335,7 +328,6 @@ public class UserService {
         u.setAccountNonLocked(false);
         u.setLockTime(Instant.now());
         userRepository.save(u);
-        this.clearUserCaches(u);
     }
 
     public boolean unlock(User u){
@@ -347,7 +339,6 @@ public class UserService {
             u.setLockTime(null);
             u.setFailedAttempt(0);
             userRepository.save(u);
-            this.clearUserCaches(u);
             return true;
         }
 
@@ -359,13 +350,11 @@ public class UserService {
         u.setLockTime(null);
         u.setFailedAttempt(0);
         userRepository.save(u);
-        this.clearUserCaches(u);
         return true;
     }
 
     public void resetFailedAttempts(User u) {
         userRepository.updateFailedAttempt(0, u.getLogin());
-        this.clearUserCaches(u);
     }
 
     public boolean checkPassword(User u, String password){
@@ -378,7 +367,6 @@ public class UserService {
     public void deleteUserById(Long id) {
         userRepository.findById(id).ifPresent(user -> {
             userRepository.delete(user);
-            this.clearUserCaches(user);
             log.debug("Deleted User: {}", user);
         });
     }
@@ -389,28 +377,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserTravelAgentDTO> getAllManagedUsers(Pageable pageable, UserSearchRequestDTO userSearchRequestDTO) {
-        return userRepository.findAllBy(userSearchRequestDTO, pageable).map((User u) -> {
-            UserTravelAgentDTO userTravelAgentDTO = new UserTravelAgentDTO();
-            userTravelAgentDTO.setId(u.getId());
-            userTravelAgentDTO.setEmail(u.getEmail());
-            userTravelAgentDTO.setFirstName(u.getFirstName());
-            userTravelAgentDTO.setLastName(u.getLastName());
-            
-            if(u.getTravelAgent() != null){
-                TravelAgentDTO travelAgentDTO = new TravelAgentDTO();
-                travelAgentDTO.setTravelAgentName(u.getTravelAgent().getTravelAgentName());
-                userTravelAgentDTO.setTravelAgent(travelAgentDTO);
-            }
-            
-            userTravelAgentDTO.setLogin(u.getLogin());
-            userTravelAgentDTO.setAuthorities(
-                u.getAuthorities().stream().map(
-                    (Authority auth) -> {
-                        return auth.getName();
-                    }).collect(Collectors.toSet())
-            );
-            return userTravelAgentDTO;
-        });
+        return userRepository.findAllBy(userSearchRequestDTO, pageable).map(UserTravelAgentDTO::new);
     }
 
 }
