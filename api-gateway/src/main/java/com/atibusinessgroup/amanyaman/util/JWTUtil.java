@@ -68,8 +68,8 @@ public class JWTUtil {
     }
 
     private String doGenerateToken(Map<String, Object> claims, String username, boolean rememberMe) {
-        Long expirationTimeLong = 1000 * Long.parseLong(expirationTime); //in second
-        Long expirationTimeLongRememberme = 1000 * Long.parseLong(expirationTimeRememberMe); //in second
+        Long expirationTimeLong = Long.parseLong(expirationTime); //in second
+        Long expirationTimeLongRememberme = Long.parseLong(expirationTimeRememberMe); //in second
         final Date createdDate = new Date();
         long now = createdDate.getTime();
         Date validity;

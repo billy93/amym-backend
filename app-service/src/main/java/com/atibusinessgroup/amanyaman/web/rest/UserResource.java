@@ -500,10 +500,13 @@ public class UserResource {
 
         Page<User> userPage = userRepository.findAll(page);
         Resource file = exportService.exportUsers(userPage.toList());
+
+
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"Users.xlsx\"")
-            .contentType(MediaType.APPLICATION_PDF)
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+//            .contentType(MediaType.APPLICATION_PDF)
             .contentLength(file.contentLength())
             .body(file);
     }
