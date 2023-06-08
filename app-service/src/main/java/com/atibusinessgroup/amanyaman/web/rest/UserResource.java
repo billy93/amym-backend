@@ -511,7 +511,7 @@ public class UserResource {
             .body(file);
     }
 
-    @PostMapping("/users/list/template/download")
+    @GetMapping("/users/list/template/download")
     @ResponseBody
     public ResponseEntity<Resource> serveFile() throws IOException {
         Resource file = loadAsResource();

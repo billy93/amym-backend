@@ -122,7 +122,7 @@ public class TravelAgentResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @PostMapping("/travel-agents/list/template/download")
+    @GetMapping("/travel-agents/list/template/download")
     @ResponseBody
     public ResponseEntity<Resource> serveFile() throws IOException {
         Resource file = loadAsResource();
