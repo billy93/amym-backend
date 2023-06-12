@@ -15,8 +15,8 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "plan_type")
-public class PlanType implements Serializable {
+@Table(name = "traveller_type")
+public class TravellerType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,18 +28,18 @@ public class PlanType implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "number")
-    private Integer number;
+    @Column(name = "description")
+    private String description;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PlanType)) {
+        if (!(o instanceof TravellerType)) {
             return false;
         }
-        return id != null && id.equals(((PlanType) o).id);
+        return id != null && id.equals(((TravellerType) o).id);
     }
 
     @Override
@@ -50,10 +50,10 @@ public class PlanType implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "PlanType{" +
+        return "TravellerType{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
-            ", number='" + getNumber() + "'" +
+            ", description='" + getDescription() + "'" +
             "}";
     }
 }
