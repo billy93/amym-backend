@@ -20,7 +20,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AmanyamanSecurityContextRepository implements SecurityContextRepository {
 
-    private final JwtAuthenticationManager authenticationManager;
+	@Autowired
+    private JwtAuthenticationManager authenticationManager;
 
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {

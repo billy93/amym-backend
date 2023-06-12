@@ -19,7 +19,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class JwtAuthenticationManager implements AuthenticationManager {
     
-    private final JWTUtil jwtUtil;
+	@Autowired
+    private JWTUtil jwtUtil;
 
     @Override
     @SuppressWarnings("unchecked")

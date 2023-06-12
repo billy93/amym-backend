@@ -1,6 +1,8 @@
 package com.atibusinessgroup.amanyaman.config;
 
 import io.jsonwebtoken.security.SignatureException;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,7 +21,9 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+    @Autowired
     private JwtAuthenticationManager authenticationManager;
+    @Autowired
     private SecurityContextRepository securityContextRepository;
 
     @Bean
