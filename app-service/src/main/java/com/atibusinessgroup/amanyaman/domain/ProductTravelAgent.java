@@ -66,7 +66,7 @@ public class ProductTravelAgent implements Serializable {
 
     @ManyToOne
     // @JsonIgnoreProperties(value = "travelAgentProducts", allowSetters = true)
-    private Product product;
+    private Product productMapping;
 
     @ManyToOne
     // @JsonIgnoreProperties(value = "travelAgentProducts", allowSetters = true)
