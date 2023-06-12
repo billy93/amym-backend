@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "product_travel_agent")
+@Table(name = "product_agent")
 public class ProductTravelAgent implements Serializable {
 
     private static final long serialVersionUID = 1L;
