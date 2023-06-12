@@ -27,7 +27,7 @@ import java.util.Optional;
  * REST controller for managing {@link com.atibusinessgroup.amanyaman.domain.AreaGroup}.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/app")
 public class AreaGroupResource {
 
     private final Logger log = LoggerFactory.getLogger(AreaGroupResource.class);
