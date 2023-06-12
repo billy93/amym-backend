@@ -43,26 +43,26 @@ public class BandTypeResource {
     }
 
     /**
-     * {@code POST  /plan-types} : Create a new BandType.
+     * {@code POST  /band-types} : Create a new BandType.
      *
      * @param BandType the BandType to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new BandType, or with status {@code 400 (Bad Request)} if the BandType has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PostMapping("/plan-types")
+    @PostMapping("/band-types")
     public ResponseEntity<BandType> createBandType(@Valid @RequestBody BandType BandType) throws URISyntaxException {
         log.debug("REST request to save BandType : {}", BandType);
         if (BandType.getId() != null) {
             throw new BadRequestAlertException("A new BandType cannot already have an ID", ENTITY_NAME, "idexists");
         }
         BandType result = BandTypeService.save(BandType);
-        return ResponseEntity.created(new URI("/api/plan-types/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/band-types/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
     /**
-     * {@code PUT  /plan-types} : Updates an existing BandType.
+     * {@code PUT  /band-types} : Updates an existing BandType.
      *
      * @param BandType the BandType to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated BandType,
@@ -70,7 +70,7 @@ public class BandTypeResource {
      * or with status {@code 500 (Internal Server Error)} if the BandType couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/plan-types")
+    @PutMapping("/band-types")
     public ResponseEntity<BandType> updateBandType(@Valid @RequestBody BandType BandType) throws URISyntaxException {
         log.debug("REST request to update BandType : {}", BandType);
         if (BandType.getId() == null) {
@@ -83,13 +83,13 @@ public class BandTypeResource {
     }
 
     /**
-     * {@code GET  /plan-types} : get all the plan-types.
+     * {@code GET  /band-types} : get all the band-types.
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of plan-types in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of band-types in body.
      */
-    @GetMapping("/plan-types")
+    @GetMapping("/band-types")
     public ResponseEntity<List<BandType>> getAll(Pageable pageable) {
         log.debug("REST request to get Plan Types");
         Page<BandType> page = BandTypeService.findAll(pageable);
@@ -98,24 +98,24 @@ public class BandTypeResource {
     }
 
     /**
-     * {@code GET  /plan-types/count} : count all the plan-types.
+     * {@code GET  /band-types/count} : count all the band-types.
      *
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
      */
-    // @GetMapping("/plan-types/count")
+    // @GetMapping("/band-types/count")
     // public ResponseEntity<Long> countCities(BandTypeCriteria criteria) {
     //     log.debug("REST request to count Cities by criteria: {}", criteria);
     //     return ResponseEntity.ok().body(BandTypeQueryService.countByCriteria(criteria));
     // }
 
     /**
-     * {@code GET  /plan-types/:id} : get the "id" BandType.
+     * {@code GET  /band-types/:id} : get the "id" BandType.
      *
      * @param id the id of the BandType to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the BandType, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/plan-types/{id}")
+    @GetMapping("/band-types/{id}")
     public ResponseEntity<BandType> getOne(@PathVariable Long id) {
         log.debug("REST request to get BandType : {}", id);
         Optional<BandType> BandType = BandTypeService.findOne(id);
@@ -123,12 +123,12 @@ public class BandTypeResource {
     }
 
     /**
-     * {@code DELETE  /plan-types/:id} : delete the "id" BandType.
+     * {@code DELETE  /band-types/:id} : delete the "id" BandType.
      *
      * @param id the id of the BandType to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/plan-types/{id}")
+    @DeleteMapping("/band-types/{id}")
     public ResponseEntity<Void> deleteOne(@PathVariable Long id) {
         log.debug("REST request to delete BandType : {}", id);
         BandTypeService.delete(id);
