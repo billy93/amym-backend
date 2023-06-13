@@ -37,7 +37,7 @@ public class JwtAuthenticationManager implements AuthenticationManager {
 
         return new UsernamePasswordAuthenticationToken(
             username,
-            null,
+            authToken,
             rolesMap.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
         );
     }

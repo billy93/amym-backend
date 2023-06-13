@@ -36,7 +36,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
             return Mono.just(new UsernamePasswordAuthenticationToken(
                     username,
-                    null,
+                    authToken,
                     rolesMap.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
             ));
         } catch (SignatureException e) {
