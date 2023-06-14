@@ -1,6 +1,7 @@
 package com.atibusinessgroup.amanyaman.service.impl;
 
 import com.atibusinessgroup.amanyaman.service.ProductTravelAgentService;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductTravelAgentSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.domain.ProductTravelAgent;
 import com.atibusinessgroup.amanyaman.repository.ProductTravelAgentRepository;
 import org.slf4j.Logger;
@@ -53,5 +54,12 @@ public class ProductTravelAgentServiceImpl implements ProductTravelAgentService 
     public void delete(Long id) {
         log.debug("Request to delete ProductTravelAgent : {}", id);
         ProductTravelAgentRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<ProductTravelAgent> findAllBy(ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO,
+            Pageable pageable) {
+        // TODO Auto-generated method stub
+        return ProductTravelAgentRepository.findAllBy(productTravelAgentSearchRequestDTO, pageable);
     }
 }
