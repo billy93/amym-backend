@@ -6,6 +6,7 @@ import com.atibusinessgroup.amanyaman.web.rest.dto.ProductSearchRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,5 +21,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     "AND (:#{#criteria.bandType} IS NULL OR p.bandType.id = :#{#criteria.bandType}) " +
     "AND (:#{#criteria.areaGroup} IS NULL OR p.areaGroup.id = :#{#criteria.areaGroup}) " +
     "AND (:#{#criteria.planType} IS NULL OR p.planType.id = :#{#criteria.planType})")
-    Page<Product> findAllBy(ProductSearchRequestDTO productSearchRequestDTO, Pageable pageable);
+    Page<Product> findAllBy(@Param("criteria") ProductSearchRequestDTO productSearchRequestDTO, Pageable pageable);
 }
