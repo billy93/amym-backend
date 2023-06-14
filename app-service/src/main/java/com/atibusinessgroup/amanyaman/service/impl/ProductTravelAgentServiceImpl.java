@@ -1,6 +1,7 @@
 package com.atibusinessgroup.amanyaman.service.impl;
 
 import com.atibusinessgroup.amanyaman.service.ProductTravelAgentService;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductTravelAgentSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.domain.ProductTravelAgent;
 import com.atibusinessgroup.amanyaman.domain.TravelAgent;
 import com.atibusinessgroup.amanyaman.repository.ProductTravelAgentRepository;
@@ -61,4 +62,11 @@ public class ProductTravelAgentServiceImpl implements ProductTravelAgentService 
 		// TODO Auto-generated method stub
 		return ProductTravelAgentRepository.findAllByTravelAgent(travelAgent, pageable);
 	}
+	
+    @Override
+    public Page<ProductTravelAgent> findAllBy(ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO,
+            Pageable pageable) {
+        // TODO Auto-generated method stub
+        return ProductTravelAgentRepository.findAllBy(productTravelAgentSearchRequestDTO, pageable);
+    }
 }

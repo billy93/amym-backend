@@ -9,6 +9,7 @@ import com.atibusinessgroup.amanyaman.util.HeaderUtil;
 import com.atibusinessgroup.amanyaman.util.JWTUtil;
 import com.atibusinessgroup.amanyaman.util.PaginationUtil;
 import com.atibusinessgroup.amanyaman.util.ResponseUtil;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductTravelAgentSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
 
 import org.slf4j.Logger;
@@ -98,9 +99,9 @@ public class ProductTravelAgentResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of product-travel-agents in body.
      */
     @GetMapping("/product-travel-agents")
-    public ResponseEntity<List<ProductTravelAgent>> getAll(Pageable pageable) {
+    public ResponseEntity<List<ProductTravelAgent>> getAll(ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO, Pageable pageable) {
         log.debug("REST request to get Plan Types");
-        Page<ProductTravelAgent> page = ProductTravelAgentService.findAll(pageable);
+        Page<ProductTravelAgent> page = ProductTravelAgentService.findAllBy(productTravelAgentSearchRequestDTO, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

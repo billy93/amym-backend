@@ -2,6 +2,8 @@ package com.atibusinessgroup.amanyaman.service;
 
 import com.atibusinessgroup.amanyaman.domain.ProductTravelAgent;
 import com.atibusinessgroup.amanyaman.domain.TravelAgent;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductTravelAgentSearchRequestDTO;
+
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,4 +48,7 @@ public interface ProductTravelAgentService {
     void delete(Long id);
 
 	Page<ProductTravelAgent> findAllByTravelAgent(TravelAgent travelAgent, Pageable pageable);
+
+    Page<ProductTravelAgent> findAllBy(ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO,
+            Pageable pageable);
 }
