@@ -114,15 +114,19 @@ public class ProductTravelAgentResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of product-travel-agents in body.
      */
     @GetMapping("/product-travel-agents/agent")
-    public ResponseEntity<List<ProductTravelAgent>> getAllByAgent(Pageable pageable) {
+    public ResponseEntity<List<ProductTravelAgent>> getAllByAgent(ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO, Pageable pageable) {
         log.debug("REST request to get Travel Agent");   
         
         String currentUserJwt = SecurityUtils.getCurrentUserJWT().get();
         System.out.println("currentUserJwt : "+currentUserJwt);
         String travelAgentId = jwtUtil.getTravelAgentId(currentUserJwt);
         
-        Optional<TravelAgent> travelAgent = travelAgentService.findOne(Long.parseLong(travelAgentId));        
-        Page<ProductTravelAgent> page = ProductTravelAgentService.findAllByTravelAgent(travelAgent.get(), pageable);
+        // Optional<TravelAgent> travelAgent = travelAgentService.findOne(Long.parseLong(travelAgentId));        
+        // Page<ProductTravelAgent> page = ProductTravelAgentService.findAllByTravelAgent(travelAgent.get(), pageable);
+        
+        productTravelAgentSearchRequestDTO.setTravelAgent(travelAgentId);
+        Page<ProductTravelAgent> page = ProductTravelAgentService.findAllBy(productTravelAgentSearchRequestDTO, pageable);
+        
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
