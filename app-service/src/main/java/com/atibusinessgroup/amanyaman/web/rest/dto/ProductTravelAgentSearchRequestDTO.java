@@ -3,6 +3,7 @@ package com.atibusinessgroup.amanyaman.web.rest.dto;
 public class ProductTravelAgentSearchRequestDTO {
     private String productCode;
     private String travellerType;
+    private String travelAgent;
     private String bandType;
     private String areaGroup;
     private String planType;
@@ -18,6 +19,9 @@ public class ProductTravelAgentSearchRequestDTO {
     }
     public String getTravellerType() {
         return travellerType;
+    }
+    public String getTravelAgent() {
+        return travelAgent;
     }
     public void setAreaGroup(String areaGroup) {
         this.areaGroup = areaGroup;
@@ -36,5 +40,8 @@ public class ProductTravelAgentSearchRequestDTO {
     }
     public void setPlanType(String planType) {
         this.planType = planType;
+    }
+    public void setTravelAgent(String travelAgent) {
+        this.travelAgent = travelAgent;
     }
 }

@@ -24,6 +24,7 @@ public interface ProductTravelAgentRepository extends JpaRepository<ProductTrave
     "JOIN pta.productMapping p " +
     "WHERE (:#{#criteria.productCode} IS NULL OR p.productCode = :#{#criteria.productCode}) " +
     "AND (:#{#criteria.travellerType} IS NULL OR p.travellerType.id = :#{#criteria.travellerType}) " +
+    "AND (:#{#criteria.travelAgent} IS NULL OR p.travelAgent.id = :#{#criteria.travelAgent}) " +
     "AND (:#{#criteria.bandType} IS NULL OR p.bandType.id = :#{#criteria.bandType}) " +
     "AND (:#{#criteria.areaGroup} IS NULL OR p.areaGroup.id = :#{#criteria.areaGroup}) " +
     "AND (:#{#criteria.planType} IS NULL OR p.planType.id = :#{#criteria.planType})")
