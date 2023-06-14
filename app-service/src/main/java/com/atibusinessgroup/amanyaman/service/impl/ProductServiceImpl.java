@@ -1,6 +1,7 @@
 package com.atibusinessgroup.amanyaman.service.impl;
 
 import com.atibusinessgroup.amanyaman.service.ProductService;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.domain.Product;
 import com.atibusinessgroup.amanyaman.repository.ProductRepository;
 import org.slf4j.Logger;
@@ -53,5 +54,11 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         log.debug("Request to delete Product : {}", id);
         ProductRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Product> findAllBy(Pageable pageable, ProductSearchRequestDTO productSearchRequestDTO) {
+        // TODO Auto-generated method stub
+        return ProductRepository.findAllBy(productSearchRequestDTO, pageable);
     }
 }

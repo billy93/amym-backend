@@ -5,6 +5,7 @@ import com.atibusinessgroup.amanyaman.service.ProductService;
 import com.atibusinessgroup.amanyaman.util.HeaderUtil;
 import com.atibusinessgroup.amanyaman.util.PaginationUtil;
 import com.atibusinessgroup.amanyaman.util.ResponseUtil;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
 
 import org.slf4j.Logger;
@@ -90,9 +91,9 @@ public class ProductResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
      */
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAll(Pageable pageable) {
+    public ResponseEntity<List<Product>> getAll(ProductSearchRequestDTO productSearchRequestDTO, Pageable pageable) {
         log.debug("REST request to get Plan Types");
-        Page<Product> page = ProductService.findAll(pageable);
+        Page<Product> page = ProductService.findAllBy(pageable, productSearchRequestDTO);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

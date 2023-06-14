@@ -1,6 +1,7 @@
 package com.atibusinessgroup.amanyaman.service;
 
 import com.atibusinessgroup.amanyaman.domain.Product;
+import com.atibusinessgroup.amanyaman.web.rest.dto.ProductSearchRequestDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,4 +44,6 @@ public interface ProductService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    Page<Product> findAllBy(Pageable pageable, ProductSearchRequestDTO productSearchRequestDTO);
 }
