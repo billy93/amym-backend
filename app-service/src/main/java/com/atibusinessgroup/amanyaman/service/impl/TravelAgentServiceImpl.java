@@ -2,6 +2,7 @@ package com.atibusinessgroup.amanyaman.service.impl;
 
 
 import com.atibusinessgroup.amanyaman.service.TravelAgentService;
+import com.atibusinessgroup.amanyaman.web.rest.dto.TravelAgentSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.domain.TravelAgent;
 import com.atibusinessgroup.amanyaman.repository.TravelAgentRepository;
 import org.slf4j.Logger;
@@ -80,5 +81,11 @@ public class TravelAgentServiceImpl implements TravelAgentService {
     @Override
     public List<TravelAgent> findAllByCgroupAndApiPassword(String cgroup, String password) {
         return travelAgentRepository.findAllByCgroupAndApiPassword(cgroup, password);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TravelAgent> findAllBy(Pageable pageable, TravelAgentSearchRequestDTO travelAgentSearchRequestDTO) {
+        return travelAgentRepository.findAllBy(travelAgentSearchRequestDTO, pageable);
     }
 }

@@ -2,6 +2,7 @@ package com.atibusinessgroup.amanyaman.service;
 
 
 import com.atibusinessgroup.amanyaman.domain.TravelAgent;
+import com.atibusinessgroup.amanyaman.web.rest.dto.TravelAgentSearchRequestDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,11 +35,13 @@ public interface TravelAgentService {
      * Get all the travelAgents.
      *
      * @param pageable the pagination information.
+     * @param travelAgentSearchRequestDTO
      * @return the list of entities.
      */
-    Page<TravelAgent> findAll(Pageable pageable);
+    Page<TravelAgent> findAllBy(Pageable pageable, TravelAgentSearchRequestDTO travelAgentSearchRequestDTO);
 
     List<TravelAgent> findAll();
+    Page<TravelAgent> findAll(Pageable pageable);
 
 
     /**

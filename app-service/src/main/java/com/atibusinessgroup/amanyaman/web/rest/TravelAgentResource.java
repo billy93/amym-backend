@@ -40,6 +40,7 @@ import com.atibusinessgroup.amanyaman.domain.TravelAgent;
 //import com.atibusinessgroup.amanyaman.module.master.travelAgent.query.dto.TravelAgentCriteria;
 //import com.atibusinessgroup.amanyaman.service.TravelAgentQueryService;
 import com.atibusinessgroup.amanyaman.service.TravelAgentService;
+import com.atibusinessgroup.amanyaman.web.rest.dto.TravelAgentSearchRequestDTO;
 import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
 
 
@@ -114,9 +115,9 @@ public class TravelAgentResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of travelAgents in body.
      */
     @GetMapping("/travel-agents")
-    public ResponseEntity<List<TravelAgent>> getAllTravelAgents(Pageable pageable) {
+    public ResponseEntity<List<TravelAgent>> getAllTravelAgents(TravelAgentSearchRequestDTO travelAgentSearchRequestDTO, Pageable pageable) {
         log.debug("REST request to get a page of TravelAgents");
-        Page<TravelAgent> page = travelAgentService.findAll(pageable);
+        Page<TravelAgent> page = travelAgentService.findAllBy(pageable, travelAgentSearchRequestDTO);
 //        Page<TravelAgent> page = travelAgentQueryService.findByCriteria(travelAgentCriteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
