@@ -1,8 +1,12 @@
 package com.atibusinessgroup.amanyaman.web.rest;
 
 import com.atibusinessgroup.amanyaman.domain.ProductTravelAgent;
+import com.atibusinessgroup.amanyaman.domain.TravelAgent;
+import com.atibusinessgroup.amanyaman.security.SecurityUtils;
 import com.atibusinessgroup.amanyaman.service.ProductTravelAgentService;
+import com.atibusinessgroup.amanyaman.service.TravelAgentService;
 import com.atibusinessgroup.amanyaman.util.HeaderUtil;
+import com.atibusinessgroup.amanyaman.util.JWTUtil;
 import com.atibusinessgroup.amanyaman.util.PaginationUtil;
 import com.atibusinessgroup.amanyaman.util.ResponseUtil;
 import com.atibusinessgroup.amanyaman.web.rest.errors.BadRequestAlertException;
@@ -37,9 +41,13 @@ public class ProductTravelAgentResource {
     private String applicationName ="AMANYAMAN";
 
     private final ProductTravelAgentService ProductTravelAgentService;
-
-    public ProductTravelAgentResource(ProductTravelAgentService ProductTravelAgentService) {
+    private final TravelAgentService travelAgentService;
+    private final JWTUtil jwtUtil;
+    
+    public ProductTravelAgentResource(ProductTravelAgentService ProductTravelAgentService, TravelAgentService travelAgentService, JWTUtil jwtUtil) {
         this.ProductTravelAgentService = ProductTravelAgentService;
+        this.travelAgentService = travelAgentService;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -93,6 +101,27 @@ public class ProductTravelAgentResource {
     public ResponseEntity<List<ProductTravelAgent>> getAll(Pageable pageable) {
         log.debug("REST request to get Plan Types");
         Page<ProductTravelAgent> page = ProductTravelAgentService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+    
+    /**
+     * {@code GET  /product-travel-agents} : get all the product-travel-agents.
+     *
+     * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of product-travel-agents in body.
+     */
+    @GetMapping("/product-travel-agents/agent")
+    public ResponseEntity<List<ProductTravelAgent>> getAllByAgent(Pageable pageable) {
+        log.debug("REST request to get Travel Agent");   
+        
+        String currentUserJwt = SecurityUtils.getCurrentUserJWT().get();
+        System.out.println("currentUserJwt : "+currentUserJwt);
+        String travelAgentId = jwtUtil.getTravelAgentId(currentUserJwt);
+        
+        Optional<TravelAgent> travelAgent = travelAgentService.findOne(Long.parseLong(travelAgentId));        
+        Page<ProductTravelAgent> page = ProductTravelAgentService.findAllByTravelAgent(travelAgent.get(), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

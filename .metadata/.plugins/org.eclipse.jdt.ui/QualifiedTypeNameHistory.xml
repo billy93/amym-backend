@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
+    <fullyQualifiedTypeName name="com.atibusinessgroup.amanyaman.security.SecurityUtils"/>
+    <fullyQualifiedTypeName name="com.atibusinessgroup.amanyaman.util.JWTUtil"/>
+    <fullyQualifiedTypeName name="com.atibusinessgroup.amanyaman.service.TravelAgentService"/>
 </qualifiedTypeNameHistroy>

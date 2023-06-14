@@ -16,6 +16,7 @@ public class CorsConfig {
         corsConfig.addAllowedOriginPattern("*"); // Use allowedOriginPatterns instead
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
+        corsConfig.addExposedHeader("x-total-count"); // Add the exposed header
 
         CorsConfigurationSource source = request -> corsConfig;
 

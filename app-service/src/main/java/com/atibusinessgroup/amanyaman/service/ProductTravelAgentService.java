@@ -1,6 +1,7 @@
 package com.atibusinessgroup.amanyaman.service;
 
 import com.atibusinessgroup.amanyaman.domain.ProductTravelAgent;
+import com.atibusinessgroup.amanyaman.domain.TravelAgent;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,4 +44,6 @@ public interface ProductTravelAgentService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+	Page<ProductTravelAgent> findAllByTravelAgent(TravelAgent travelAgent, Pageable pageable);
 }

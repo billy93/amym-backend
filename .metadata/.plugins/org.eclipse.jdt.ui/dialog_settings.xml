@@ -8,4 +8,7 @@
 		<item key="size.x" value="538"/>
 		<item key="size.y" value="306"/>
 	</section>
+	<section name="BuildPathsPropertyPage">
+		<item key="pageIndex" value="3"/>
+	</section>
 </section>

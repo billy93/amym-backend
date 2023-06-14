@@ -104,6 +104,9 @@ public class User extends AbstractAuditingEntity{
     // @ManyToOne
     // @JsonIgnoreProperties(value = "users", allowSetters = true)
     // private TravelAgent travelAgent;
+    
+    @Column(name = "travel_agent_id")
+    private String travelAgentId;
 
     public Long getId() {
         return id;
@@ -284,6 +287,14 @@ public class User extends AbstractAuditingEntity{
     public void setLastLatestFeed(Instant lastLatestFeed) {
         this.lastLatestFeed = lastLatestFeed;
     }
+    
+    public String getTravelAgentId() {
+		return travelAgentId;
+	}
+    
+    public void setTravelAgentId(String travelAgentId) {
+		this.travelAgentId = travelAgentId;
+	}
 
     //	public List<String> getArea() {
 //		return area;

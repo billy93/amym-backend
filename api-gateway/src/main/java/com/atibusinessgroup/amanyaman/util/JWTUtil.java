@@ -58,11 +58,11 @@ public class JWTUtil {
          }).toList());
         claims.put(TokenKeyConstant.USER_LASTNAME_KEY, user.getLastName());
         claims.put(TokenKeyConstant.USER_FIRSTNAME_KEY, user.getFirstName());
-        // if(user.getTravelAgent() != null){
-        //     if(user.getTravelAgent().getId() != null){
-        //         claims.put(USER_TRAVEL_AGENT, user.getTravelAgent().getId());
-        //     }
-        // }
+        
+        System.out.println("TRAVEL AGENT ID : "+user.getTravelAgentId());
+         if(user.getTravelAgentId() != null){
+             claims.put(TokenKeyConstant.USER_TRAVEL_AGENT, user.getTravelAgentId());
+         }
         // claims.put(USER_TRAVEL_AGENT_STAFF, user.get().getId());
         return doGenerateToken(claims, user.getEmail(), rememberMe);
     }
