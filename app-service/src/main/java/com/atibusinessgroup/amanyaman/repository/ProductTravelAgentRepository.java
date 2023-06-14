@@ -8,6 +8,7 @@ import com.atibusinessgroup.amanyaman.web.rest.dto.ProductTravelAgentSearchReque
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -26,6 +27,6 @@ public interface ProductTravelAgentRepository extends JpaRepository<ProductTrave
     "AND (:#{#criteria.bandType} IS NULL OR p.bandType.id = :#{#criteria.bandType}) " +
     "AND (:#{#criteria.areaGroup} IS NULL OR p.areaGroup.id = :#{#criteria.areaGroup}) " +
     "AND (:#{#criteria.planType} IS NULL OR p.planType.id = :#{#criteria.planType})")
-    Page<ProductTravelAgent> findAllBy(ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO, Pageable pageable);
+    Page<ProductTravelAgent> findAllBy(@Param("criteria") ProductTravelAgentSearchRequestDTO productTravelAgentSearchRequestDTO, Pageable pageable);
 
 }
